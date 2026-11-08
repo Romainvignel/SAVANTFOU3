@@ -836,25 +836,25 @@ const countMorts = c => c.pays.reduce((s,p) => s + p.morts, 0);
 const countPop = c => c.pays.reduce((s,p) => s + p.pop, 0);
 
 const mortaliteDamage = (lvl = state.mortaliteLevel) => 5 * Math.pow(2e7, lvl / 100);
-const contagionDamage = (lvl = state.contagionLevel) => 100 * Math.pow(1e5, lvl / 100);
+const contagionDamage = (lvl = state.contagionLevel) => 25 * Math.pow(4e5, lvl / 100);
 
 const maxEnergy = (lvl = state.energieLevel) => 100 + Math.floor(lvl / 10) * 100;
-const ENERGY_RECHARGE_BASE = 180; // ← secondes pour recharger au niv. 0 (était 45)
-const ENERGY_RECHARGE_MAX  = 1;   // ← secondes pour recharger au niv. 100
+const ENERGY_RECHARGE_BASE = 180; // 3 minutes au niveau 0
+const ENERGY_RECHARGE_MAX  = 90;  // 1 minute 30 au niveau 100 (au lieu de 1 seconde !)
 const rechargeFullSec = (lvl = state.energieLevel) => 
   ENERGY_RECHARGE_BASE * Math.pow(ENERGY_RECHARGE_MAX / ENERGY_RECHARGE_BASE, lvl / 100);
 const energyPerSec = (lvl = state.energieLevel) => maxEnergy(lvl) / rechargeFullSec(lvl);
 
-const mortaliteCost = () => 100 * Math.pow(1.16, state.mortaliteLevel);
-const contagionCost = () => 160 * Math.pow(1.16, state.contagionLevel);
-const energieCost    = () => 60 * Math.pow(1.16, state.energieLevel);
+const mortaliteCost = () => 100 * Math.pow(1.17, state.mortaliteLevel);
+const contagionCost = () => 160 * Math.pow(1.17, state.contagionLevel);
+const energieCost    = () => 60 * Math.pow(1.17, state.energieLevel);
 
 const nextMortaliteDmg  = () => state.mortaliteLevel  < MAX_LEVEL ? mortaliteDamage(state.mortaliteLevel + 1)  : mortaliteDamage();
 const nextContagionDmg  = () => state.contagionLevel  < MAX_LEVEL ? contagionDamage(state.contagionLevel + 1)  : contagionDamage();
 const nextRechargeFull  = () => state.energieLevel    < MAX_LEVEL ? rechargeFullSec(state.energieLevel + 1)    : rechargeFullSec();
 const nextMaxEnergy     = () => state.energieLevel    < MAX_LEVEL ? maxEnergy(state.energieLevel + 1)          : maxEnergy();
 
-const incomePerSec = () => 30 * (1 + totalMorts() / 20_000_000) * (1 + state.mortaliteLevel);
+const incomePerSec = () => 15 * (1 + totalMorts() / 50_000_000) * (1 + state.mortaliteLevel);
 
 function penurieDPS(c) {
   const living = c.pays.filter(p => p.morts < p.pop - 0.01);
