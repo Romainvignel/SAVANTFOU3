@@ -1869,46 +1869,5 @@ renderMain();
 requestAnimationFrame(tick);
   
 </script>
-  <!-- BOUTON TEMPORAIRE CHEAT CODE -->
-<button id="temp-cheat-btn" style="position:fixed;bottom:20px;left:20px;z-index:99999;background:#c9a961;color:#000;padding:12px;border-radius:8px;font-weight:bold;box-shadow:0 4px 10px rgba(0,0,0,0.5);">
-  🎁 Appliquer mon avance
-</button>
-<script>
-  document.getElementById('temp-cheat-btn').onclick = function() {
-    // On remet tout à zéro
-    for (let c of CONTINENTS) { 
-      delete c._timer; 
-      for (let p of c.pays) p.morts = 0; 
-    }
-    
-    // TON AVANCE
-    state.money = 10000000; // 10 Millions
-    state.gems = 110;
-    state.quizBestStreak = 28;
-    state.quizTotalCorrect = 28;
-    
-    // Reset des niveaux et statuts
-    state.mortaliteLevel = 0;
-    state.contagionLevel = 0;
-    state.energieLevel = 0;
-    state.milestone = 0;
-    state.won = false;
-    state.energy = 100;
-    state.shortages = {};
-    state.clickCount = 0;
-    state.badges.forEach(b => b.unlocked = false);
-    
-    // Sauvegarde et relance
-    generateMissions();
-    if (window.Capitals) window.Capitals.reset();
-    saveGame();
-    
-    alert('Avance appliquée avec succès ! Le jeu va se relancer.');
-    location.reload();
-  };
-</script>
-<!-- FIN DU BOUTON TEMPORAIRE -->
-</body>
-</html>
 </body>
 </html>
