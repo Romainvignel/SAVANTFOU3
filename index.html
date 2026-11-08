@@ -1,0 +1,1872 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Savant Fou</title>
+<style>
+:root {
+  --bg:         #080506;
+  --card:       #100a0c;
+  --card-2:     #0a0607;
+  --card-hover: #181013;
+  --card-active:#1e1416;
+  --border:     #28181c;
+  --border-lit: #3e2830;
+  --wine:       #3e1319;
+  --burgundy:   #5c2028;
+  --crimson:    #8f2c38;
+  --blood:      #b04a52;
+  --gold:       #c9a961;
+  --gem:        #7dc9b8;
+  --green:      #6eb87a;
+  --red:        #c66060;
+  --bone:       #e6dcda;
+  --text:       #d8cac8;
+  --dim:        #a89898;
+  --faint:      #6a5858;
+  --radius:     14px;
+  --radius-sm:  10px;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+html { -webkit-text-size-adjust: 100%; }
+html, body { min-height: 100%; }
+button { font: inherit; color: inherit; background: none; border: none; }
+button:focus-visible { outline: 2px solid var(--crimson); outline-offset: 2px; }
+img, svg { display: block; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background:
+    radial-gradient(ellipse 80% 40% at 50% 0%, rgba(143,44,56,0.10) 0%, transparent 70%),
+    radial-gradient(ellipse 60% 50% at 50% 100%, rgba(62,19,25,0.08) 0%, transparent 70%),
+    var(--bg);
+  background-attachment: fixed;
+  color: var(--text);
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding: 14px 12px 60px;
+  padding-bottom: calc(60px + env(safe-area-inset-bottom, 0px));
+  user-select: none;
+  -webkit-user-select: none;
+  overflow-x: hidden;
+  font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.35;
+}
+#app { max-width: 940px; margin: 0 auto; }
+#main { min-height: 320px; }
+
+.banner {
+  display: flex; align-items: center; gap: 14px;
+  background: linear-gradient(155deg, #1a0c10 0%, #0a0506 100%);
+  border: 1px solid var(--border-lit);
+  border-radius: var(--radius);
+  padding: 14px 18px; margin-bottom: 12px;
+  position: relative; overflow: hidden;
+  box-shadow: 0 4px 30px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.03);
+}
+.banner::before {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(circle at 15% 50%, rgba(143,44,56,0.10), transparent 60%);
+  pointer-events: none;
+}
+.banner::after {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--crimson), transparent);
+  opacity: 0.6;
+}
+.logo-virus {
+  width: 44px; height: 44px; flex-shrink: 0; position: relative; z-index: 1;
+  animation: virusPulse 2.6s ease-in-out infinite;
+  filter: drop-shadow(0 0 8px rgba(176,74,82,0.35));
+}
+@keyframes virusPulse {
+  0%, 100% { transform: scale(1) rotate(0deg); filter: drop-shadow(0 0 8px rgba(176,74,82,0.35)); }
+  50%      { transform: scale(1.06) rotate(6deg); filter: drop-shadow(0 0 14px rgba(176,74,82,0.55)); }
+}
+.banner-text { flex: 1; min-width: 0; z-index: 1; }
+.banner-title {
+  font-size: 22px; font-weight: 900; letter-spacing: 3px; line-height: 1;
+  background: linear-gradient(135deg, var(--blood) 0%, var(--gold) 100%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.banner-sub {
+  font-size: 10px; color: var(--faint); letter-spacing: 2px;
+  text-transform: uppercase; margin-top: 4px; font-weight: 600;
+}
+.gems-badge {
+  display: flex; align-items: center; gap: 6px; z-index: 1;
+  background: linear-gradient(155deg, #0c1a1c, #051012);
+  border: 1px solid #1d3e42; border-radius: 20px;
+  padding: 8px 14px; font-weight: 800; font-size: 15px; color: var(--gem);
+  box-shadow: 0 0 16px rgba(125,201,184,0.10);
+  white-space: nowrap;
+}
+.gems-badge .icon { font-size: 16px; }
+
+.topbar { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+.stat-card {
+  background: linear-gradient(155deg, var(--card) 0%, var(--card-2) 100%);
+  border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 14px 16px;
+  box-shadow: 0 1px 0 rgba(255,255,255,0.02) inset, 0 4px 20px rgba(0,0,0,0.4);
+  min-width: 0;
+}
+.stat-label {
+  font-size: 10px; color: var(--dim); text-transform: uppercase;
+  letter-spacing: 1.4px; font-weight: 700; margin-bottom: 6px;
+}
+.stat-value { font-size: 24px; font-weight: 800; letter-spacing: -0.6px; line-height: 1.1; }
+.stat-value.gold  { color: var(--gold); }
+.stat-value.blood { color: var(--blood); text-shadow: 0 0 16px rgba(176,74,82,0.20); }
+.stat-sub { font-size: 11px; color: var(--faint); margin-top: 4px; font-weight: 500; }
+
+.energy-card, .milestone-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 10px 14px; margin-bottom: 10px;
+}
+.energy-head, .milestone-head {
+  display: flex; justify-content: space-between; gap: 8px;
+  font-size: 11px; font-weight: 700; margin-bottom: 6px;
+  color: var(--dim); text-transform: uppercase; letter-spacing: 1px;
+}
+.energy-head .val   { color: var(--bone); }
+.energy-lvl-tag { color: var(--faint); font-size: 10px; font-weight: 600; text-transform: none; letter-spacing: 0.3px; margin-left: 4px; }
+.milestone-head .val { color: var(--gold); }
+.milestone-head .count { color: var(--faint); font-size: 10px; }
+.energy-bar, .milestone-bar {
+  height: 8px; background: #050203; border-radius: 4px;
+  overflow: hidden; border: 1px solid #1a080c;
+}
+.milestone-bar { height: 6px; }
+.energy-fill {
+  height: 100%; background: linear-gradient(90deg, var(--wine), var(--crimson));
+  box-shadow: 0 0 10px rgba(143,44,56,0.4) inset;
+  transition: width 0.09s linear;
+}
+.milestone-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--wine), var(--burgundy), var(--crimson));
+  box-shadow: 0 0 10px rgba(143,44,56,0.4) inset;
+  transition: width 0.25s ease;
+}
+.energy-sub {
+  font-size: 10px; color: var(--faint); margin-top: 6px;
+  display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap;
+}
+.energy-sub .next-milestone { color: var(--gem); font-weight: 600; }
+
+.tabs {
+  display: flex; gap: 4px; margin-bottom: 14px;
+  background: var(--card-2); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 4px;
+  overflow-x: auto; scrollbar-width: none;
+}
+.tabs::-webkit-scrollbar { display: none; }
+.tab {
+  flex: 1 0 auto; background: transparent; color: var(--dim);
+  padding: 10px 10px; border-radius: var(--radius-sm);
+  font-size: 11px; font-weight: 700; cursor: pointer;
+  letter-spacing: 0.2px; transition: all 0.15s; white-space: nowrap;
+}
+.tab:hover { color: var(--text); background: var(--card-hover); }
+.tab.active {
+  background: linear-gradient(155deg, var(--burgundy), var(--crimson));
+  color: var(--bone);
+  box-shadow: 0 2px 10px rgba(92,32,40,0.4), 0 0 0 1px var(--border-lit) inset;
+}
+
+.section-title {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 1.4px;
+  color: var(--dim); font-weight: 700; margin: 18px 4px 10px;
+  display: flex; justify-content: space-between; align-items: center; gap: 8px;
+}
+.section-title .tag { font-size: 10px; color: var(--faint); font-weight: 600; letter-spacing: 0.5px; }
+
+.missions-grid { display: grid; gap: 8px; margin-bottom: 12px; }
+.mission-card {
+  background: linear-gradient(155deg, var(--card), var(--card-2));
+  border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 14px; display: flex; justify-content: space-between;
+  align-items: center; gap: 10px; transition: all 0.2s;
+}
+.mission-info { flex: 1; min-width: 0; }
+.mission-title { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 6px; line-height: 1.3; }
+.mission-reward { font-size: 11px; color: var(--gold); font-weight: 700; }
+.mission-progress { font-size: 16px; font-weight: 800; color: var(--blood); flex-shrink: 0; }
+.mission-card.completed {
+  border-color: var(--green);
+  background: linear-gradient(155deg, #0a2418, #051210);
+}
+.mission-card.completed .mission-progress { color: var(--green); }
+
+.badges-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 8px; }
+.badge-card {
+  background: linear-gradient(155deg, var(--card), var(--card-2));
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  padding: 10px; text-align: center;
+  opacity: 0.4; filter: grayscale(1); transition: all 0.3s;
+}
+.badge-card.unlocked {
+  opacity: 1; filter: grayscale(0); border-color: var(--gold);
+  box-shadow: 0 0 12px rgba(201,169,97,0.15);
+  background: linear-gradient(155deg, #1a1408, #0a0804);
+}
+.badge-icon { font-size: 24px; margin-bottom: 4px; }
+.badge-name { font-size: 11px; font-weight: 800; color: var(--gold); margin-bottom: 2px; line-height: 1.2; }
+.badge-desc { font-size: 9px; color: var(--dim); }
+.badge-reward { font-size: 10px; color: var(--gem); font-weight: 700; margin-top: 4px; }
+
+.continents-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 10px; }
+.continent-card {
+  background: linear-gradient(155deg, var(--card), var(--card-2));
+  border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 14px 16px; cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.2,0.8,0.3,1);
+  position: relative; overflow: hidden;
+}
+.continent-card:hover {
+  border-color: var(--border-lit); transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(0,0,0,0.5), 0 0 16px rgba(92,32,40,0.15);
+}
+.continent-card:active { transform: translateY(-1px); }
+.continent-card.dead { opacity: 0.45; cursor: default; }
+.continent-card.dead:hover { transform: none; box-shadow: none; border-color: var(--border); }
+.cont-name { font-size: 15px; font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+.cont-pct { font-size: 26px; font-weight: 800; color: var(--blood); letter-spacing: -1px; line-height: 1; }
+.cont-count { font-size: 11px; color: var(--faint); margin-top: 4px; font-weight: 500; }
+.cont-bar { height: 3px; background: #050203; border-radius: 2px; margin-top: 10px; overflow: hidden; }
+.cont-bar-fill {
+  height: 100%; background: linear-gradient(90deg, var(--burgundy), var(--blood));
+  box-shadow: 0 0 8px rgba(176,74,82,0.3); transition: width 0.25s ease;
+}
+.cont-badge { position: absolute; top: 10px; right: 10px; font-size: 14px; }
+
+.upgrades { display: grid; gap: 8px; }
+.upgrade-btn {
+  background: linear-gradient(155deg, var(--card), var(--card-2));
+  border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 12px 14px; cursor: pointer; display: flex; align-items: center;
+  gap: 14px; text-align: left; color: var(--text);
+  transition: all 0.18s cubic-bezier(0.2,0.8,0.3,1); width: 100%;
+}
+.upgrade-btn:hover:not(:disabled) {
+  border-color: var(--burgundy);
+  background: linear-gradient(155deg, var(--card-hover), var(--card-2));
+  box-shadow: 0 0 20px rgba(92,32,40,0.15);
+}
+.upgrade-btn:active:not(:disabled) { transform: scale(0.995); }
+.upgrade-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+.up-icon { font-size: 24px; flex-shrink: 0; }
+.up-info { flex: 1; min-width: 0; }
+.up-name { font-weight: 700; font-size: 14px; margin-bottom: 2px; }
+.up-name .lvl { color: var(--dim); font-weight: 500; font-size: 12px; margin-left: 4px; }
+.up-desc { font-size: 11px; color: var(--faint); }
+.up-cost { font-weight: 800; font-size: 13px; color: var(--gold); flex-shrink: 0; }
+.upgrade-btn:disabled .up-cost { color: var(--faint); }
+
+.shortage-grid { display: grid; gap: 8px; }
+.shortage-card {
+  background: linear-gradient(155deg, #101a1c, #060c0d);
+  border: 1px solid #1d3540; border-radius: var(--radius);
+  padding: 12px 14px; cursor: pointer; display: flex; align-items: center;
+  gap: 14px; width: 100%; color: var(--text); text-align: left;
+  transition: all 0.18s cubic-bezier(0.2,0.8,0.3,1);
+}
+.shortage-card:hover:not(:disabled) {
+  border-color: var(--gem);
+  box-shadow: 0 0 20px rgba(125,201,184,0.15), 0 8px 20px rgba(0,0,0,0.4);
+  transform: translateY(-1px);
+}
+.shortage-card:disabled { opacity: 0.4; cursor: not-allowed; }
+.shortage-card.active {
+  border-color: var(--gem);
+  background: linear-gradient(155deg, #0a2420, #051210);
+  box-shadow: 0 0 16px rgba(125,201,184,0.20);
+}
+.sc-icon { font-size: 26px; flex-shrink: 0; }
+.sc-body { flex: 1; min-width: 0; }
+.sc-name { font-weight: 700; font-size: 14px; }
+.sc-cont { font-size: 11px; color: var(--dim); margin-top: 2px; font-weight: 500; }
+.sc-desc { font-size: 10px; color: var(--faint); margin-top: 3px; }
+.sc-cost { font-weight: 800; font-size: 14px; color: var(--gem); flex-shrink: 0; }
+.shortage-card.active .sc-cost { font-size: 11px; letter-spacing: 0.5px; }
+.shortage-card:disabled .sc-cost { color: var(--faint); }
+
+.back-btn {
+  background: var(--card); border: 1px solid var(--border); color: var(--text);
+  padding: 9px 14px; border-radius: var(--radius-sm); font-size: 13px;
+  font-weight: 600; cursor: pointer; margin-bottom: 12px; transition: all 0.15s;
+}
+.back-btn:hover { background: var(--card-hover); border-color: var(--border-lit); }
+.cont-header {
+  background: linear-gradient(155deg, var(--card), var(--card-2));
+  border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 20px; margin-bottom: 12px; text-align: center;
+  position: relative; overflow: hidden;
+}
+.cont-header::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--crimson), transparent);
+  opacity: 0.7;
+}
+.cont-header-name {
+  font-size: 16px; font-weight: 700; margin-bottom: 6px;
+  color: var(--dim); letter-spacing: 1px; text-transform: uppercase;
+}
+.cont-header-pct { font-size: 44px; font-weight: 900; color: var(--blood); letter-spacing: -2px; line-height: 1; }
+.cont-header-count { font-size: 12px; color: var(--faint); margin-top: 6px; }
+
+.country-list {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); overflow: hidden; margin-bottom: 12px;
+}
+.country-row {
+  display: grid; grid-template-columns: 1fr auto auto; gap: 14px;
+  padding: 11px 16px; align-items: center; cursor: pointer;
+  border-bottom: 1px solid var(--border); transition: background 0.12s;
+}
+.country-row:last-child { border-bottom: none; }
+.country-row:hover:not(.dead) { background: var(--card-hover); }
+.country-row:active:not(.dead) { background: var(--card-active); }
+.country-row.dead { opacity: 0.35; cursor: default; }
+.country-row.flash { animation: row-flash 0.28s ease; }
+@keyframes row-flash { 0% { background: rgba(143,44,56,0.30); } 100% { background: transparent; } }
+.cr-info { min-width: 0; }
+.cr-name { font-weight: 700; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cr-sub { font-size: 10px; color: var(--faint); margin-top: 2px; }
+.cr-pct { font-weight: 800; font-size: 14px; color: var(--blood); text-align: right; min-width: 64px; }
+.cr-dmg { font-size: 11px; color: var(--gold); text-align: right; min-width: 76px; font-weight: 600; }
+.cr-dmg.dead-icon { color: var(--dim); font-size: 16px; }
+
+.stats-block {
+  background: linear-gradient(155deg, var(--card), var(--card-2));
+  border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 16px; margin-bottom: 12px;
+}
+.stats-block-title {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 1.4px;
+  color: var(--dim); font-weight: 700; margin-bottom: 12px;
+  padding-bottom: 10px; border-bottom: 1px solid var(--border);
+}
+.stats-big { font-size: 32px; font-weight: 900; color: var(--blood); letter-spacing: -1.2px; line-height: 1; margin-bottom: 4px; }
+.stats-big-label { font-size: 11px; color: var(--faint); margin-bottom: 14px; font-weight: 500; }
+.stats-row {
+  display: flex; justify-content: space-between; align-items: center; gap: 10px;
+  padding: 9px 0; border-bottom: 1px solid rgba(40,24,28,0.6); font-size: 13px;
+}
+.stats-row:last-child { border-bottom: none; }
+.stats-row .label { color: var(--dim); display: flex; align-items: center; gap: 8px; font-weight: 500; }
+.stats-row .value { font-weight: 800; color: var(--bone); }
+.stats-row .value.gold  { color: var(--gold); }
+.stats-row .value.blood { color: var(--blood); }
+.stats-row .value.dim   { color: var(--faint); font-weight: 600; }
+.stats-formula {
+  background: #050203; border: 1px solid var(--border); border-radius: var(--radius-sm);
+  padding: 12px 14px; font-size: 12px; color: var(--dim); margin-bottom: 12px;
+  font-family: 'SF Mono', Menlo, Consolas, monospace; line-height: 1.6;
+}
+.stats-formula strong { color: var(--blood); }
+.stats-empty { color: var(--faint); font-size: 12px; text-align: center; padding: 20px 0; font-style: italic; }
+.stats-block.danger-zone {
+  border-color: rgba(198,96,96,0.30);
+  background: linear-gradient(155deg, #1a0808, #0a0404);
+}
+.stats-block.danger-zone .stats-block-title {
+  color: var(--red);
+  border-bottom-color: rgba(198,96,96,0.20);
+}
+.danger-text {
+  font-size: 12px;
+  color: var(--faint);
+  margin-bottom: 12px;
+  line-height: 1.5;
+}
+.danger-btn {
+  width: 100%;
+  background: linear-gradient(155deg, #2a0808, #1a0404);
+  border: 1px solid rgba(198,96,96,0.40);
+  color: var(--red);
+  padding: 12px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.18s;
+  font-family: inherit;
+}
+.danger-btn:hover {
+  background: linear-gradient(155deg, #3a0c0c, #1a0404);
+  border-color: var(--red);
+  box-shadow: 0 0 20px rgba(198,96,96,0.25);
+}
+.danger-btn:active { transform: scale(0.99); }
+.res-table { font-size: 12px; }
+.res-row {
+  display: grid; grid-template-columns: 1fr 60px 80px;
+  padding: 7px 0; border-bottom: 1px solid rgba(40,24,28,0.5); align-items: center; gap: 6px;
+}
+.res-row:last-child { border-bottom: none; }
+.res-row .res-name { color: var(--text); font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.res-row .res-val  { color: var(--crimson); font-weight: 700; text-align: right; }
+.res-row .res-dmg  { color: var(--gold); font-weight: 700; text-align: right; }
+
+.quiz-wrap { max-width: 620px; margin: 0 auto; }
+.quiz-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 14px; }
+.qs-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 8px; text-align: center; }
+.qs-label { font-size: 9px; color: var(--faint); text-transform: uppercase; letter-spacing: 1px; font-weight: 700; margin-bottom: 4px; }
+.qs-value { font-size: 20px; font-weight: 800; color: var(--gold); }
+.qs-value.streak { color: var(--blood); text-shadow: 0 0 12px rgba(176,74,82,0.25); }
+.qs-value.best   { color: var(--gem); }
+.qs-value.lives  { display: flex; gap: 2px; justify-content: center; }
+.heart { font-size: 18px; line-height: 1; }
+.heart.full  { color: var(--blood); text-shadow: 0 0 6px rgba(176,74,82,0.4); }
+.heart.empty { color: var(--faint); opacity: 0.4; }
+.quiz-milestones { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; margin-bottom: 14px; }
+.qm-badge {
+  background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+  padding: 8px 4px; text-align: center; font-size: 10px; font-weight: 700;
+  color: var(--faint); transition: all 0.2s;
+}
+.qm-badge.hit {
+  background: linear-gradient(155deg, #0a2418, #051210);
+  border-color: var(--green); color: var(--green);
+  box-shadow: 0 0 12px rgba(110,184,122,0.20);
+}
+.qm-badge .qm-streak { font-size: 13px; font-weight: 800; display: block; margin-bottom: 2px; }
+.qm-badge .qm-reward { font-size: 9px; opacity: 0.8; }
+.quiz-card {
+  background: linear-gradient(155deg, var(--card), var(--card-2));
+  border: 1px solid var(--border-lit); border-radius: var(--radius);
+  padding: 24px 22px; margin-bottom: 14px; position: relative; overflow: hidden;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+}
+.quiz-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--crimson), transparent);
+  opacity: 0.7;
+}
+.quiz-q-label { font-size: 10px; color: var(--faint); text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700; margin-bottom: 10px; }
+.quiz-q-country { font-size: 32px; font-weight: 900; color: var(--blood); letter-spacing: -1px; line-height: 1.1; margin-bottom: 6px; }
+.quiz-q-cont { font-size: 12px; color: var(--dim); margin-bottom: 20px; font-weight: 500; }
+.quiz-options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.cap-option {
+  background: linear-gradient(155deg, var(--card-hover), var(--card-2));
+  border: 1px solid var(--border-lit); border-radius: var(--radius-sm);
+  padding: 16px 14px; cursor: pointer; color: var(--text);
+  font-weight: 700; font-size: 14px;
+  transition: all 0.15s cubic-bezier(0.2,0.8,0.3,1);
+  text-align: center; min-height: 58px;
+  display: flex; align-items: center; justify-content: center;
+}
+.cap-option:hover:not(:disabled) {
+  border-color: var(--crimson);
+  background: linear-gradient(155deg, var(--card-active), var(--card-2));
+  box-shadow: 0 0 20px rgba(143,44,56,0.20); transform: translateY(-1px);
+}
+.cap-option:disabled { cursor: default; }
+.cap-option.correct {
+  border-color: var(--green);
+  background: linear-gradient(155deg, #0a2415, #051208);
+  color: var(--green); box-shadow: 0 0 20px rgba(110,184,122,0.25);
+}
+.cap-option.wrong {
+  border-color: var(--red);
+  background: linear-gradient(155deg, #240a10, #120507);
+  color: var(--red); box-shadow: 0 0 20px rgba(198,96,96,0.25);
+  animation: shake 0.35s ease;
+}
+@keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+
+.game-over { max-width: 520px; margin: 0 auto; padding: 30px 16px; text-align: center; animation: fadeIn 0.4s ease; }
+.go-icon { font-size: 52px; margin-bottom: 12px; filter: drop-shadow(0 4px 18px rgba(143,44,56,0.3)); animation: goPulse 2s ease-in-out infinite; }
+@keyframes goPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+.go-title { font-size: 34px; font-weight: 900; letter-spacing: -1.5px; color: var(--blood); margin-bottom: 6px; text-shadow: 0 0 24px rgba(176,74,82,0.25); }
+.go-sub { color: var(--dim); font-size: 13px; margin-bottom: 28px; font-weight: 500; letter-spacing: 0.3px; }
+.go-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+.go-stat { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; }
+.go-stat-label { display: block; font-size: 10px; color: var(--faint); text-transform: uppercase; letter-spacing: 1px; font-weight: 700; margin-bottom: 6px; }
+.go-stat-value { display: block; font-size: 24px; font-weight: 800; color: var(--blood); }
+.game-over > .go-stat-value {
+  display: block; font-size: 44px; font-weight: 900; letter-spacing: -1.5px;
+  color: var(--blood); margin: 0 0 22px; text-shadow: 0 0 24px rgba(176,74,82,0.25);
+}
+.game-over > .go-stat-value::before {
+  content: 'MEILLEURE SÉRIE'; display: block;
+  font-size: 10px; font-weight: 700; letter-spacing: 1.4px;
+  color: var(--faint); margin-bottom: 6px; text-shadow: none;
+}
+.go-rewards { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; margin-bottom: 22px; text-align: left; }
+.go-rewards-title { font-size: 10px; color: var(--faint); text-transform: uppercase; letter-spacing: 1.2px; font-weight: 700; margin-bottom: 10px; }
+.go-reward-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px solid rgba(40,24,28,0.6); font-size: 13px; color: var(--text); }
+.go-reward-row:last-of-type { border-bottom: none; }
+.go-reward-row .label { color: var(--dim); font-weight: 500; }
+.go-reward-row .value { color: var(--gold); font-weight: 800; font-size: 12px; text-align: right; }
+.go-reward-total { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 10px 0 0; margin-top: 8px; border-top: 1px solid var(--border-lit); font-weight: 800; font-size: 14px; color: var(--gold); }
+.go-empty { color: var(--faint); font-size: 12px; font-style: italic; padding: 10px 0; text-align: center; line-height: 1.5; }
+.go-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+.go-btn { background: var(--card); border: 1px solid var(--border-lit); color: var(--text); padding: 12px 22px; border-radius: var(--radius-sm); font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.15s; }
+.go-btn:hover { background: var(--card-hover); border-color: var(--crimson); }
+.go-btn.primary { background: linear-gradient(155deg, var(--burgundy), var(--crimson)); border-color: var(--border-lit); color: var(--bone); box-shadow: 0 4px 16px rgba(92,32,40,0.35); }
+.go-btn.primary:hover { background: linear-gradient(155deg, var(--crimson), var(--blood)); transform: translateY(-1px); }
+
+.dmg-float {
+  position: fixed; pointer-events: none; font-weight: 800; font-size: 16px;
+  color: var(--blood); text-shadow: 0 2px 6px rgba(0,0,0,0.9);
+  animation: floatUp 0.75s cubic-bezier(0.2,0.8,0.4,1) forwards;
+  z-index: 10000; transform: translate(-50%, -50%); white-space: nowrap;
+}
+@keyframes floatUp {
+  0%   { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, -180%) scale(1.15); }
+}
+#toasts {
+  position: fixed; top: 16px; left: 50%; transform: translateX(-50%);
+  z-index: 20000; display: flex; flex-direction: column; gap: 8px;
+  pointer-events: none; width: min(90vw, 420px);
+}
+.toast {
+  background: linear-gradient(155deg, #1a0c10, #0a0506);
+  border: 1px solid var(--gold); border-radius: var(--radius-sm);
+  padding: 12px 16px; color: var(--bone); font-size: 13px; font-weight: 600;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5); text-align: center;
+  animation: toastIn 0.3s ease;
+}
+.toast.out { animation: toastOut 0.3s ease forwards; }
+@keyframes toastIn  { from { opacity: 0; transform: translateY(-12px) scale(0.95); } to { opacity: 1; transform: none; } }
+@keyframes toastOut { to { opacity: 0; transform: translateY(-12px); } }
+
+.victory { text-align: center; padding: 60px 20px; animation: fadeIn 0.6s ease; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+.victory h1 {
+  font-size: 44px; font-weight: 900; letter-spacing: -2.5px;
+  background: linear-gradient(135deg, var(--crimson), var(--gold));
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  margin-bottom: 8px;
+}
+.victory .sub { color: var(--dim); font-size: 15px; line-height: 1.7; }
+.victory .stat-big { font-size: 30px; font-weight: 900; color: var(--blood); margin: 20px 0 8px; }
+.victory button {
+  margin-top: 30px;
+  background: linear-gradient(135deg, var(--burgundy), var(--crimson));
+  border: 1px solid var(--border-lit); color: var(--bone);
+  padding: 14px 34px; border-radius: var(--radius-sm);
+  font-size: 15px; font-weight: 700; cursor: pointer;
+  box-shadow: 0 6px 24px rgba(92,32,40,0.4); transition: transform 0.15s;
+}
+.victory button:hover { transform: translateY(-2px); }
+
+
+@media (max-width: 520px) {
+  body { padding: 10px 10px 60px; }
+  .banner { padding: 12px 14px; gap: 10px; }
+  .banner-title { font-size: 18px; letter-spacing: 2px; }
+  .banner-sub { font-size: 9px; letter-spacing: 1.4px; }
+  .logo-virus { width: 36px; height: 36px; }
+  .gems-badge { padding: 7px 11px; font-size: 13px; }
+  .stat-value { font-size: 20px; }
+  .cont-header-pct { font-size: 34px; }
+  .stats-big { font-size: 26px; }
+  .continents-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .continent-card { padding: 12px; }
+  .cont-pct { font-size: 22px; }
+  .country-row { grid-template-columns: 1fr auto; gap: 8px; padding: 10px 12px; }
+  .cr-dmg { display: none; }
+  .quiz-q-country { font-size: 24px; }
+  .quiz-options { grid-template-columns: 1fr; }
+  .cap-option { min-height: 50px; font-size: 13px; }
+  .quiz-milestones { grid-template-columns: repeat(3, 1fr); }
+  .quiz-stats { grid-template-columns: 1fr 1fr; }
+  .tab { font-size: 10px; padding: 9px 6px; }
+  .go-stats { grid-template-columns: 1fr; }
+  .go-title { font-size: 26px; }
+  .section-title { flex-wrap: wrap; gap: 4px; }
+}
+
+/* Slide animations pour le swipe entre onglets */
+@keyframes mainSlideFromRight {
+  from { opacity: 0; transform: translateX(24px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes mainSlideFromLeft {
+  from { opacity: 0; transform: translateX(-24px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+#main.main-slide-right { animation: mainSlideFromRight 0.22s ease-out; }
+#main.main-slide-left  { animation: mainSlideFromLeft  0.22s ease-out; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <header class="banner">
+    <svg class="logo-virus" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="vg" cx="40%" cy="35%" r="60%">
+          <stop offset="0%" stop-color="#b04a52"/>
+          <stop offset="100%" stop-color="#3a1016"/>
+        </radialGradient>
+      </defs>
+      <g stroke="#8f2c38" stroke-width="2.2" stroke-linecap="round">
+        <line x1="24" y1="3" x2="24" y2="11"/><line x1="24" y1="37" x2="24" y2="45"/>
+        <line x1="3" y1="24" x2="11" y2="24"/><line x1="37" y1="24" x2="45" y2="24"/>
+        <line x1="9" y1="9" x2="14.5" y2="14.5"/><line x1="33.5" y1="33.5" x2="39" y2="39"/>
+        <line x1="9" y1="39" x2="14.5" y2="33.5"/><line x1="33.5" y1="14.5" x2="39" y2="9"/>
+      </g>
+      <circle cx="24" cy="24" r="12" fill="url(#vg)" stroke="#b04a52" stroke-width="1.2"/>
+      <circle cx="20" cy="21" r="2.6" fill="#b04a52" opacity="0.85"/>
+      <circle cx="28" cy="25" r="2.1" fill="#c9a961" opacity="0.85"/>
+      <circle cx="22" cy="29" r="1.7" fill="#b04a52" opacity="0.7"/>
+    </svg>
+    <div class="banner-text">
+      <div class="banner-title">SAVANT FOU</div>
+      <div class="banner-sub">Propager · Détruire · Régner</div>
+    </div>
+    <div class="gems-badge">
+      <span class="icon">💎</span>
+      <span id="gems">0</span>
+    </div>
+  </header>
+
+  <div class="topbar">
+    <div class="stat-card">
+      <div class="stat-label">Argent</div>
+      <div class="stat-value gold" id="money">0 €</div>
+      <div class="stat-sub" id="income">+0 €/s</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Humanité décimée</div>
+      <div class="stat-value blood" id="killPct">0,00 %</div>
+      <div class="stat-sub" id="killCount">0 / 8,131 Md</div>
+    </div>
+  </div>
+
+  <div class="energy-card">
+    <div class="energy-head">
+      <span>⚡ Énergie <span class="energy-lvl-tag" id="energyLvl">· niv. 0/100</span></span>
+      <span class="val" id="energyText">100 / 100</span>
+    </div>
+    <div class="energy-bar"><div class="energy-fill" id="energyFill" style="width:100%"></div></div>
+    <div class="energy-sub">
+      <span id="energyRate">+2,2 ⚡/s</span>
+      <span class="next-milestone" id="energyNext">Prochain palier : niv. 10 → 200 ⚡</span>
+    </div>
+  </div>
+
+  <div class="milestone-card">
+    <div class="milestone-head">
+      <span>🎯 Palier suivant <span class="count" id="milestoneCount">0 / 10</span></span>
+      <span class="val" id="milestoneText">0,1 % → +5 000 €</span>
+    </div>
+    <div class="milestone-bar"><div class="milestone-fill" id="milestoneFill" style="width:0%"></div></div>
+  </div>
+
+  <nav class="tabs">
+    <button class="tab active" data-action="tab" data-tab="world">🌍 Monde</button>
+    <button class="tab" data-action="tab" data-tab="missions">📋 Missions</button>
+    <button class="tab" data-action="tab" data-tab="capitales">🎓 Capitales</button>
+    <button class="tab" data-action="tab" data-tab="stats">📊 Stats</button>
+  </nav>
+
+  <main id="main"></main>
+</div>
+<div id="toasts"></div>
+
+<script>
+'use strict';
+
+// ============================================================
+// CONSTANTES & DONNÉES
+// ============================================================
+const WORLD_POP = 8_131_000_000;
+const MAX_LEVEL = 100;
+const SAVE_VERSION = 3;
+
+const CONTINENTS = [
+  { id:'afrique', nom:'Afrique', emoji:'🌍',
+    penurie:{ nom:"Pénurie d'eau", emoji:'💧', gems:250 },
+    pays:[
+      {nom:'Nigéria',pop:227_000_000,res:15,capitale:'Abuja'},
+      {nom:'Éthiopie',pop:132_000_000,res:12,capitale:'Addis-Abeba'},
+      {nom:'Égypte',pop:116_000_000,res:25,capitale:'Le Caire'},
+      {nom:'RD Congo',pop:109_000_000,res:10,capitale:'Kinshasa'},
+      {nom:'Tanzanie',pop:68_000_000,res:12,capitale:'Dodoma'},
+      {nom:'Afrique du Sud',pop:63_000_000,res:40,capitale:'Pretoria'},
+      {nom:'Kenya',pop:56_000_000,res:18,capitale:'Nairobi'},
+      {nom:'Soudan',pop:50_000_000,res:8,capitale:'Khartoum'},
+      {nom:'Algérie',pop:46_000_000,res:30,capitale:'Alger'},
+      {nom:'Maroc',pop:38_000_000,res:28,capitale:'Rabat'},
+      {nom:'Autres pays',pop:615_000_000,res:15}
+    ]},
+  { id:'amerique', nom:'Amérique', emoji:'🌎',
+    penurie:{ nom:"Pénurie de burgers", emoji:'🍔', gems:200 },
+    pays:[
+      {nom:'USA',pop:341_000_000,res:90,capitale:'Washington'},
+      {nom:'Brésil',pop:212_000_000,res:40,capitale:'Brasilia'},
+      {nom:'Mexique',pop:130_000_000,res:38,capitale:'Mexico'},
+      {nom:'Colombie',pop:52_000_000,res:30,capitale:'Bogota'},
+      {nom:'Argentine',pop:46_000_000,res:35,capitale:'Buenos Aires'},
+      {nom:'Canada',pop:41_000_000,res:70,capitale:'Ottawa'},
+      {nom:'Pérou',pop:34_000_000,res:25,capitale:'Lima'},
+      {nom:'Venezuela',pop:28_000_000,res:20,capitale:'Caracas'},
+      {nom:'Chili',pop:20_000_000,res:55,capitale:'Santiago'},
+      {nom:'Cuba',pop:11_000_000,res:45,capitale:'La Havane'},
+      {nom:'Autres pays',pop:125_000_000,res:35}
+    ]},
+  { id:'asie', nom:'Asie', emoji:'🌏',
+    penurie:{ nom:"Pénurie de riz", emoji:'🍚', gems:300 },
+    pays:[
+      {nom:'Inde',pop:1_450_000_000,res:35,capitale:'New Delhi'},
+      {nom:'Chine',pop:1_410_000_000,res:55,capitale:'Pékin'},
+      {nom:'Indonésie',pop:283_000_000,res:30,capitale:'Jakarta'},
+      {nom:'Pakistan',pop:251_000_000,res:20,capitale:'Islamabad'},
+      {nom:'Bangladesh',pop:173_000_000,res:18,capitale:'Dhaka'},
+      {nom:'Japon',pop:123_000_000,res:75,capitale:'Tokyo'},
+      {nom:'Philippines',pop:119_000_000,res:30,capitale:'Manille'},
+      {nom:'Vietnam',pop:101_000_000,res:40,capitale:'Hanoï'},
+      {nom:'Thaïlande',pop:72_000_000,res:50,capitale:'Bangkok'},
+      {nom:'Corée du Sud',pop:52_000_000,res:72,capitale:'Séoul'},
+      {nom:'Autres pays',pop:746_000_000,res:30}
+    ]},
+  { id:'europe', nom:'Europe', emoji:'🇪🇺',
+    penurie:{ nom:"Hôpitaux saturés", emoji:'🏥', gems:150 },
+    pays:[
+      {nom:'Russie',pop:144_000_000,res:45,capitale:'Moscou'},
+      {nom:'Allemagne',pop:84_000_000,res:70,capitale:'Berlin'},
+      {nom:'France',pop:68_000_000,res:80,capitale:'Paris'},
+      {nom:'Royaume-Uni',pop:69_000_000,res:70,capitale:'Londres'},
+      {nom:'Italie',pop:59_000_000,res:68,capitale:'Rome'},
+      {nom:'Espagne',pop:48_000_000,res:65,capitale:'Madrid'},
+      {nom:'Pologne',pop:37_000_000,res:55,capitale:'Varsovie'},
+      {nom:'Suède',pop:10_600_000,res:85,capitale:'Stockholm'},
+      {nom:'Norvège',pop:5_600_000,res:85,capitale:'Oslo'},
+      {nom:'Islande',pop:390_000,res:90,capitale:'Reykjavik'},
+      {nom:'Autres pays',pop:219_410_000,res:60}
+    ]},
+  { id:'oceanie', nom:'Océanie', emoji:'🌊',
+    penurie:{ nom:"Attaque de kangourous", emoji:'🦘', gems:100 },
+    pays:[
+      {nom:'Australie',pop:27_000_000,res:85,capitale:'Canberra'},
+      {nom:'Papouasie-N.-G.',pop:10_600_000,res:10,capitale:'Port Moresby'},
+      {nom:'Nouvelle-Zélande',pop:5_300_000,res:90,capitale:'Wellington'},
+      {nom:'Fidji',pop:930_000,res:30,capitale:'Suva'},
+      {nom:'Îles Salomon',pop:820_000,res:12,capitale:'Honiara'},
+      {nom:'Vanuatu',pop:330_000,res:15,capitale:'Port-Vila'},
+      {nom:'Samoa',pop:220_000,res:20,capitale:'Apia'},
+      {nom:'Tonga',pop:107_000,res:18,capitale:"Nuku'alofa"},
+      {nom:'Kiribati',pop:133_000,res:12,capitale:'Tarawa'},
+      {nom:'Micronésie',pop:115_000,res:12,capitale:'Palikir'},
+      {nom:'Autres pays',pop:445_000,res:15}
+    ]}
+];
+
+const MILESTONES = [
+  { pct:0.1,  reward:5_000,        label:'0,1 %' },
+  { pct:0.5,  reward:25_000,       label:'0,5 %' },
+  { pct:1,    reward:100_000,      label:'1 %'   },
+  { pct:5,    reward:500_000,      label:'5 %'   },
+  { pct:10,   reward:1_500_000,    label:'10 %'  },
+  { pct:25,   reward:5_000_000,    label:'25 %'  },
+  { pct:50,   reward:20_000_000,   label:'50 %'  },
+  { pct:75,   reward:50_000_000,   label:'75 %'  },
+  { pct:90,   reward:100_000_000,  label:'90 %'  },
+  { pct:100,  reward:0,            label:'100 %', victory:true }
+];
+
+const QUIZ_MILESTONES = [
+  { streak:5,  gems:1  },
+  { streak:10, gems:3  },
+  { streak:20, gems:5  },
+  { streak:30, gems:10 },
+  { streak:50, gems:20 }
+];
+
+const BADGES = [
+  { id: 'kills_1m',  name: 'Le rhume de la grand-mère', desc: '1 Million de morts',          emoji: '🩸', reward: 5,   condition: () => totalMorts() >= 1e6 },
+  { id: 'kills_50m', name: 'Grippe saisonnière',       desc: '50 Millions de morts',        emoji: '🤧', reward: 10,  condition: () => totalMorts() >= 50e6 },
+  { id: 'kills_100m',name: 'La bonne vieille peste',   desc: '100 Millions de morts',       emoji: '💀', reward: 15,  condition: () => totalMorts() >= 100e6 },
+  { id: 'kills_500m',name: 'La moitié du gâteau',      desc: '500 Millions de morts',       emoji: '☠️', reward: 25,  condition: () => totalMorts() >= 500e6 },
+  { id: 'kills_1b',  name: 'Milliardaire en cercueils',desc: '1 Milliard de morts',         emoji: '⚰️', reward: 40,  condition: () => totalMorts() >= 1e9 },
+  { id: 'kills_4b',  name: 'Apocalypse Now',           desc: '4 Milliards de morts',        emoji: '🪦', reward: 60,  condition: () => totalMorts() >= 4e9 },
+  { id: 'kills_win', name: 'Silence Radio',            desc: '8,131 Milliards de morts',    emoji: '💥', reward: 100, condition: () => totalMorts() >= WORLD_POP },
+  { id: 'cont_dead', name: 'Nettoyage de printemps',   desc: '1 continent entièrement décimé', emoji: '🧹', reward: 20,  condition: () => CONTINENTS.some(c => countMorts(c) >= countPop(c)) },
+  { id: 'clicks',    name: 'Doigt en feu',             desc: 'Effectuer 100 clics',         emoji: '🫵', reward: 10,  condition: () => state.clickCount >= 100 },
+  { id: 'quiz_10',   name: 'Génie de la géo',          desc: "10 bonnes réponses d'affilée",  emoji: '🧠', reward: 15,  condition: () => state.quizBestStreak >= 10 },
+  { id: 'quiz_20',   name: 'Cartographe en herbe',     desc: "20 bonnes réponses d'affilée",  emoji: '🗺️', reward: 25,  condition: () => state.quizBestStreak >= 20 },
+  { id: 'quiz_30',   name: 'Explorateur émérite',      desc: "30 bonnes réponses d'affilée",  emoji: '🧭', reward: 40,  condition: () => state.quizBestStreak >= 30 },
+  { id: 'quiz_50',   name: 'Maître du globe',          desc: "50 bonnes réponses d'affilée",  emoji: '🌍', reward: 75,  condition: () => state.quizBestStreak >= 50 },
+  { id: 'quiz_100',  name: 'Géographie absolue',       desc: "100 bonnes réponses d'affilée", emoji: '🏆', reward: 150, condition: () => state.quizBestStreak >= 100 }
+];
+
+for (const c of CONTINENTS) for (const p of c.pays) p.morts = 0;
+
+// ============================================================
+// ÉTAT
+// ============================================================
+const state = {
+  money: 300, gems: 0,
+  energy: 100,
+  mortaliteLevel: 0, contagionLevel: 0, energieLevel: 0,
+  view: 'world', shortages: {}, milestone: 0, won: false,
+  missions: [],
+  missionsDate: null,
+  badges: BADGES.map(b => ({ ...b, unlocked: false })),
+  clickCount: 0, quizTotalCorrect: 0, quizBestStreak: 0
+};
+
+// ============================================================
+// FORMULES & FORMAT
+// ============================================================
+const totalMorts = () => { let t = 0; for (const c of CONTINENTS) for (const p of c.pays) t += p.morts; return t; };
+const countMorts = c => c.pays.reduce((s,p) => s + p.morts, 0);
+const countPop = c => c.pays.reduce((s,p) => s + p.pop, 0);
+
+const mortaliteDamage = (lvl = state.mortaliteLevel) => 5 * Math.pow(2e7, lvl / 100);
+const contagionDamage = (lvl = state.contagionLevel) => 100 * Math.pow(1e5, lvl / 100);
+
+const maxEnergy = (lvl = state.energieLevel) => 100 + Math.floor(lvl / 10) * 100;
+const ENERGY_RECHARGE_BASE = 180; // ← secondes pour recharger au niv. 0 (était 45)
+const ENERGY_RECHARGE_MAX  = 1;   // ← secondes pour recharger au niv. 100
+const rechargeFullSec = (lvl = state.energieLevel) => 
+  ENERGY_RECHARGE_BASE * Math.pow(ENERGY_RECHARGE_MAX / ENERGY_RECHARGE_BASE, lvl / 100);
+const energyPerSec = (lvl = state.energieLevel) => maxEnergy(lvl) / rechargeFullSec(lvl);
+
+const mortaliteCost = () => 100 * Math.pow(1.16, state.mortaliteLevel);
+const contagionCost = () => 160 * Math.pow(1.16, state.contagionLevel);
+const energieCost    = () => 60 * Math.pow(1.16, state.energieLevel);
+
+const nextMortaliteDmg  = () => state.mortaliteLevel  < MAX_LEVEL ? mortaliteDamage(state.mortaliteLevel + 1)  : mortaliteDamage();
+const nextContagionDmg  = () => state.contagionLevel  < MAX_LEVEL ? contagionDamage(state.contagionLevel + 1)  : contagionDamage();
+const nextRechargeFull  = () => state.energieLevel    < MAX_LEVEL ? rechargeFullSec(state.energieLevel + 1)    : rechargeFullSec();
+const nextMaxEnergy     = () => state.energieLevel    < MAX_LEVEL ? maxEnergy(state.energieLevel + 1)          : maxEnergy();
+
+const incomePerSec = () => 30 * (1 + totalMorts() / 20_000_000) * (1 + state.mortaliteLevel);
+
+function penurieDPS(c) {
+  const living = c.pays.filter(p => p.morts < p.pop - 0.01);
+  if (!living.length) return 0;
+  let tl = 0, w = 0;
+  for (const p of living) { const r = p.pop - p.morts; tl += r; w += r * (1 - p.res/100); }
+  return tl === 0 ? 0 : mortaliteDamage() * (w / tl) / 2;
+}
+
+const fmt = n => {
+  if (!isFinite(n) || n < 0) n = 0;
+  if (n >= 1e9) return (n/1e9).toFixed(2).replace('.', ',') + ' Md';
+  if (n >= 1e6) return (n/1e6).toFixed(2).replace('.', ',') + ' M';
+  if (n >= 1e3) return Math.floor(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+  if (n >= 100) return Math.floor(n).toString();
+  if (n >= 10) return n.toFixed(0);
+  if (n >= 1) return n.toFixed(1).replace('.', ',');
+  if (n > 0) return n.toFixed(2).replace('.', ',');
+  return '0';
+};
+const fmtEuro = n => {
+  if (n >= 1e9) return (n/1e9).toFixed(2).replace('.', ',') + ' Md €';
+  if (n >= 1e6) return (n/1e6).toFixed(2).replace('.', ',') + ' M €';
+  if (n >= 1e3) return Math.floor(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' €';
+  return Math.floor(n) + ' €';
+};
+const fmtPct = p => p.toFixed(2).replace('.', ',') + ' %';
+
+// ============================================================
+// BADGES & MISSIONS
+// ============================================================
+function checkBadges() {
+  for (let b of state.badges) {
+    if (!b.unlocked && b.condition()) {
+      b.unlocked = true;
+      state.gems += b.reward;
+      updateGemDisplay();
+      showToast(`🏅 Badge débloqué : ${b.name} ! +${b.reward} 💎`);
+      if (state.view === 'stats') renderStats();
+    }
+  }
+}
+
+// 10 minutes de revenu passif = 600 secondes
+const MISSION_REWARD_SECONDS = 600;
+
+const MISSION_POOL = [
+  // ─── Clics ───
+  { id: 'click_15',  type: 'click', target: 15,  rewardGems: 2, desc: 'Clique 15 fois sur un pays' },
+  { id: 'click_30',  type: 'click', target: 30,  rewardGems: 2, desc: 'Clique 30 fois sur un pays' },
+  { id: 'click_50',  type: 'click', target: 50,  rewardGems: 2, desc: 'Clique 50 fois sur un pays' },
+  { id: 'click_100', type: 'click', target: 100, rewardGems: 2, desc: 'Clique 100 fois sur un pays' },
+
+  // ─── Attaques ciblées ───
+  { id: 'click_spec_3',  type: 'click_specific', target: 3,  rewardGems: 2, desc: 'Attaque {c} 3 fois' },
+  { id: 'click_spec_5',  type: 'click_specific', target: 5,  rewardGems: 2, desc: 'Attaque {c} 5 fois' },
+  { id: 'click_spec_10', type: 'click_specific', target: 10, rewardGems: 2, desc: 'Attaque {c} 10 fois' },
+
+  // ─── Améliorations ───
+  { id: 'upgrade_2',  type: 'upgrade', target: 2,  rewardGems: 2, desc: 'Améliore ton virus 2 fois' },
+  { id: 'upgrade_5',  type: 'upgrade', target: 5,  rewardGems: 2, desc: 'Améliore ton virus 5 fois' },
+  { id: 'upgrade_10', type: 'upgrade', target: 10, rewardGems: 2, desc: 'Améliore ton virus 10 fois' },
+
+  // ─── Infection ───
+  { id: 'infect_3',  type: 'infect', target: 3,  rewardGems: 2, desc: 'Infecte 3 nouveaux pays' },
+  { id: 'infect_5',  type: 'infect', target: 5,  rewardGems: 2, desc: 'Infecte 5 nouveaux pays' },
+  { id: 'infect_10', type: 'infect', target: 10, rewardGems: 2, desc: 'Infecte 10 nouveaux pays' },
+  { id: 'infect_15', type: 'infect', target: 15, rewardGems: 2, desc: 'Infecte 15 nouveaux pays' },
+
+  // ─── Quiz Capitales ───
+  { id: 'quiz_3',  type: 'quiz', target: 3,  rewardGems: 2, desc: 'Réponds correctement à 3 questions Capitales' },
+  { id: 'quiz_5',  type: 'quiz', target: 5,  rewardGems: 2, desc: 'Réponds correctement à 5 questions Capitales' },
+  { id: 'quiz_10', type: 'quiz', target: 10, rewardGems: 2, desc: 'Réponds correctement à 10 questions Capitales' },
+  { id: 'quiz_20', type: 'quiz', target: 20, rewardGems: 2, desc: 'Réponds correctement à 20 questions Capitales' }
+];
+
+function generateMissions() {
+  let pool = [...MISSION_POOL];
+  let selected = [];
+  // Revenu au moment de la génération — figé pour toute la vie de la mission
+  const frozenMoneyReward = incomePerSec() * MISSION_REWARD_SECONDS;
+  for (let i = 0; i < 3; i++) {
+    let idx = Math.floor(Math.random() * pool.length);
+    let m = { ...pool[idx], progress: 0, completed: false, moneyReward: frozenMoneyReward };
+    if (m.type === 'click_specific') {
+      const allCountries = [];
+      for (let c of CONTINENTS) for (let p of c.pays) allCountries.push(p.nom);
+      const randomCountry = allCountries[Math.floor(Math.random() * allCountries.length)];
+      m.countryTarget = randomCountry;
+      m.desc = `Attaque ${randomCountry} ${m.target} fois`;
+    }
+    selected.push(m);
+    pool.splice(idx, 1);
+  }
+    state.missions = selected;
+  state.missionsDate = new Date().toDateString();
+}
+function trackMission(type, amount, extra) {
+  if (!state.missions) return;
+  let changed = false;
+  for (let m of state.missions) {
+    if (m.completed) continue;
+    if (m.type === type) {
+      if (type === 'click_specific' && m.countryTarget !== extra) continue;
+      m.progress += amount;
+           if (m.progress >= m.target) {
+        m.progress = m.target;
+        m.completed = true;
+        state.money += m.moneyReward;
+        state.gems += m.rewardGems;
+        updateGemDisplay();
+        showToast(`🎯 Mission accomplie ! +${fmtEuro(m.moneyReward)} · +${m.rewardGems} 💎`);
+      }
+      changed = true;
+    }
+  }
+  if (changed) {
+    updateMissionUI();
+    saveGame();
+  }
+}
+
+function updateMissionUI() {
+  const container = document.getElementById('missions-container');
+  if (!container || !state.missions) return;
+  container.innerHTML = state.missions.map(m => `
+    <div class="mission-card ${m.completed ? 'completed' : ''}">
+      <div class="mission-info">
+        <div class="mission-title">${m.desc}</div>
+       <div class="mission-reward">+${fmtEuro(m.moneyReward)} · +${m.rewardGems} 💎</div>
+      </div>
+      <div class="mission-progress">${m.completed ? '✓' : m.progress + '/' + m.target}</div>
+    </div>
+  `).join('');
+}
+
+// ============================================================
+// HELPERS UI
+// ============================================================
+function updateGemDisplay() { const g = document.getElementById('gems'); if (g) g.textContent = state.gems; }
+function showToast(text) {
+  const box = document.getElementById('toasts');
+  const t = document.createElement('div');
+  t.className = 'toast'; t.textContent = text;
+  box.appendChild(t);
+  setTimeout(() => { t.classList.add('out'); setTimeout(() => t.remove(), 300); }, 3200);
+}
+function spawnFloat(el, text) {
+  const r = el.getBoundingClientRect();
+  const f = document.createElement('div');
+  f.className = 'dmg-float'; f.textContent = text;
+  f.style.left = (r.left + r.width * 0.55) + 'px';
+  f.style.top = (r.top + r.height * 0.5) + 'px';
+  document.body.appendChild(f);
+  setTimeout(() => f.remove(), 800);
+}
+
+// ============================================================
+// ACTIONS DU JEU
+// ============================================================
+function clickCountry(p, rowEl) {
+  if (state.won || state.energy < 10) return;
+  const remaining = p.pop - p.morts;
+  if (remaining <= 0.01) return;
+
+  state.energy -= 10;
+  state.clickCount++;
+  const dmg = Math.min(remaining, mortaliteDamage() * (1 - p.res/100));
+
+  if (p.morts <= 0.01) trackMission('infect', 1);
+  p.morts += dmg;
+
+  trackMission('click', 1);
+  trackMission('click_specific', 1, p.nom);
+  checkBadges();
+
+  if (rowEl) {
+    rowEl.classList.remove('flash'); void rowEl.offsetWidth; rowEl.classList.add('flash');
+    spawnFloat(rowEl, '+' + fmt(dmg));
+  }
+  saveGame();
+}
+function buyMortalite() { if (state.mortaliteLevel >= MAX_LEVEL || state.money < mortaliteCost()) return; state.money -= mortaliteCost(); state.mortaliteLevel++; trackMission('upgrade', 1); checkBadges(); saveGame(); }
+function buyContagion() { if (state.contagionLevel >= MAX_LEVEL || state.money < contagionCost()) return; state.money -= contagionCost(); state.contagionLevel++; trackMission('upgrade', 1); checkBadges(); saveGame(); }
+function buyEnergie()   { if (state.energieLevel   >= MAX_LEVEL || state.money < energieCost())    return; state.money -= energieCost();    state.energieLevel++;   trackMission('upgrade', 1); checkBadges(); saveGame(); }
+function buyShortage(c) {
+  if (state.shortages[c.id] || state.gems < c.penurie.gems) return;
+  state.gems -= c.penurie.gems;
+  state.shortages[c.id] = true;
+  showToast(`${c.penurie.emoji} ${c.penurie.nom} activée en ${c.nom}`);
+  updateGemDisplay();
+  updateShortageCard(c);
+  saveGame();
+}
+
+// ============================================================
+// BOUCLE DE JEU
+// ============================================================
+let lastTick = performance.now();
+let lastUI = 0;
+
+function tick(now) {
+  const dt = Math.min((now - lastTick) / 1000, 0.5);
+  lastTick = now;
+
+  if (!state.won) {
+    state.energy = Math.min(maxEnergy(), state.energy + energyPerSec() * dt);
+
+    const cDmg = contagionDamage() * dt;
+    if (cDmg > 0) {
+      const seeded = []; let totalW = 0;
+      for (const c of CONTINENTS) for (const p of c.pays) {
+        if (p.morts > 0 && p.morts < p.pop) {
+          const w = p.pop * (1 - p.res/100);
+          if (w > 0) { seeded.push({p, w}); totalW += w; }
+        }
+      }
+      if (totalW > 0) for (const s of seeded) s.p.morts = Math.min(s.p.pop, s.p.morts + cDmg * (s.w / totalW));
+    }
+
+    for (const c of CONTINENTS) {
+      if (state.shortages[c.id]) {
+        c._timer = (c._timer || 0) + dt;
+        while (c._timer >= 2) {
+          c._timer -= 2;
+          const dmg = mortaliteDamage();
+          const living = c.pays.filter(p => p.morts < p.pop - 0.01);
+          if (living.length) {
+            let tl = 0; for (const p of living) tl += (p.pop - p.morts);
+            for (const p of living) {
+              const share = (p.pop - p.morts) / tl;
+              p.morts = Math.min(p.pop, p.morts + dmg * share * (1 - p.res/100));
+            }
+          }
+        }
+      }
+    }
+
+    state.money += incomePerSec() * dt;
+    const pct = (totalMorts() / WORLD_POP) * 100;
+
+    while (state.milestone < MILESTONES.length && pct >= MILESTONES[state.milestone].pct) {
+      const m = MILESTONES[state.milestone];
+      if (m.reward > 0) { state.money += m.reward; showToast(`🎯 Palier ${m.label} — +${fmtEuro(m.reward)}`); }
+      state.milestone++;
+      if (m.victory) state.won = true;
+    }
+
+    checkBadges();
+  }
+
+  if (now - lastUI > 100) { lastUI = now; updateUI(); }
+  requestAnimationFrame(tick);
+}
+
+// ============================================================
+// MISE À JOUR INTERFACE
+// ============================================================
+function updateUI() {
+  if (state.won) return;
+  const tm = totalMorts();
+  const pct = (tm / WORLD_POP) * 100;
+  const $ = id => document.getElementById(id);
+
+  if ($('money')) $('money').textContent = fmtEuro(state.money);
+  if ($('income')) $('income').textContent = '+' + fmtEuro(incomePerSec()) + '/s';
+  if ($('killPct')) $('killPct').textContent = fmtPct(pct);
+  if ($('killCount')) $('killCount').textContent = fmt(tm) + ' / 8,131 Md';
+
+  const curMax = maxEnergy();
+  const curEps = energyPerSec();
+  if ($('energyFill')) $('energyFill').style.width = (state.energy / curMax * 100) + '%';
+  if ($('energyText')) $('energyText').textContent = Math.floor(state.energy) + ' / ' + curMax + ' — ' + Math.floor(state.energy / 10) + ' clics';
+  if ($('energyLvl')) $('energyLvl').textContent = '· niv. ' + state.energieLevel + ' / 100';
+  if ($('energyRate')) $('energyRate').textContent = '+' + curEps.toFixed(1).replace('.', ',') + ' ⚡/s';
+  if ($('energyNext')) {
+    if (state.energieLevel >= MAX_LEVEL) {
+      $('energyNext').textContent = 'MAX atteint';
+    } else {
+      const nextLvl = Math.ceil((state.energieLevel + 1) / 10) * 10;
+      const nextMax = maxEnergy(nextLvl);
+      $('energyNext').textContent = 'Prochain palier : niv. ' + nextLvl + ' → ' + nextMax + ' ⚡';
+    }
+  }
+
+  if (state.milestone < MILESTONES.length) {
+    const next = MILESTONES[state.milestone];
+    const prevPct = state.milestone > 0 ? MILESTONES[state.milestone-1].pct : 0;
+    const prog = Math.min(100, Math.max(0, (pct - prevPct) / (next.pct - prevPct) * 100));
+    if ($('milestoneFill')) $('milestoneFill').style.width = prog + '%';
+    if ($('milestoneText')) $('milestoneText').textContent = next.label + ' → +' + fmtEuro(next.reward);
+    if ($('milestoneCount')) $('milestoneCount').textContent = state.milestone + ' / ' + MILESTONES.length;
+  }
+
+  updateUpgradeBtns();
+  if (state.view === 'world') updateWorldView();
+  else if (state.view === 'stats') updateStatsView();
+  else if (state.view !== 'capitales' && state.view !== 'missions') updateContinentView();
+}
+
+function upgradeDesc(id) {
+  if (id === 'mortalite') {
+    const cur = fmt(mortaliteDamage());
+    const nxt = state.mortaliteLevel >= MAX_LEVEL ? '—' : fmt(nextMortaliteDmg());
+    return cur + ' → ' + nxt + ' / clic';
+  }
+  if (id === 'contagion') {
+    const cur = fmt(contagionDamage());
+    const nxt = state.contagionLevel >= MAX_LEVEL ? '—' : fmt(nextContagionDmg());
+    return cur + ' → ' + nxt + ' morts/s';
+  }
+  const curR = rechargeFullSec().toFixed(1).replace('.', ',');
+  const nxtR = state.energieLevel >= MAX_LEVEL ? '—' : nextRechargeFull().toFixed(1).replace('.', ',');
+  const curM = maxEnergy();
+  const nxtM = state.energieLevel >= MAX_LEVEL ? '—' : String(nextMaxEnergy());
+  return 'Rech. ' + curR + 's → ' + nxtR + 's · Max ' + curM + ' → ' + nxtM + ' ⚡';
+}
+
+function updateUpgradeBtns() {
+  const setBtn = (id, maxed, lvl, desc, cost) => {
+    const b = document.getElementById('up-' + id); if (!b) return;
+    b.disabled = maxed || state.money < cost;
+    const l = b.querySelector('.lvl'); if (l) l.textContent = maxed ? '(MAX)' : 'niv. ' + lvl + ' / 100';
+    const d = b.querySelector('.up-desc'); if (d) d.textContent = desc;
+    const c = b.querySelector('.up-cost'); if (c) c.textContent = maxed ? '—' : fmtEuro(cost);
+  };
+  setBtn('mortalite', state.mortaliteLevel >= MAX_LEVEL, state.mortaliteLevel, upgradeDesc('mortalite'), mortaliteCost());
+  setBtn('contagion', state.contagionLevel >= MAX_LEVEL, state.contagionLevel, upgradeDesc('contagion'), contagionCost());
+  setBtn('energie',   state.energieLevel   >= MAX_LEVEL, state.energieLevel,   upgradeDesc('energie'),   energieCost());
+}
+
+function updateWorldView() {
+  for (const c of CONTINENTS) {
+    const cm = countMorts(c), cp = countPop(c), pct = (cm / cp) * 100;
+    const pe = document.getElementById('c-pct-' + c.id); if (pe) pe.textContent = fmtPct(pct);
+    const ce = document.getElementById('c-cnt-' + c.id); if (ce) ce.textContent = fmt(cm) + ' / ' + fmt(cp);
+    const be = document.getElementById('c-bar-' + c.id); if (be) be.style.width = pct + '%';
+    updateShortageCard(c);
+  }
+}
+
+function updateShortageCard(c) {
+  const btn = document.getElementById('short-' + c.id); if (!btn) return;
+  const bought = !!state.shortages[c.id];
+  btn.disabled = bought || state.gems < c.penurie.gems;
+  btn.classList.toggle('active', bought);
+  const cost = btn.querySelector('.sc-cost');
+  if (cost) cost.textContent = bought ? '✓ ACTIVE' : c.penurie.gems + ' 💎';
+}
+
+function updateContinentView() {
+  const c = CONTINENTS.find(x => x.id === state.view); if (!c) return;
+  const cm = countMorts(c), cp = countPop(c);
+  const pctEl = document.getElementById('detail-pct'); if (pctEl) pctEl.textContent = fmtPct(cm/cp*100);
+  const cntEl = document.getElementById('detail-cnt'); if (cntEl) cntEl.textContent = fmt(cm) + ' morts sur ' + fmt(cp);
+  for (let i = 0; i < c.pays.length; i++) {
+    const p = c.pays[i]; const row = document.getElementById('row-' + c.id + '-' + i); if (!row) continue;
+    const dead = p.morts >= p.pop - 0.01;
+    const pe = row.querySelector('.cr-pct'); if (pe) pe.textContent = fmtPct((p.morts / p.pop) * 100);
+    const de = row.querySelector('.cr-dmg');
+    if (de) {
+      if (dead) { de.textContent = '☠️'; de.classList.add('dead-icon'); }
+      else { de.textContent = '+' + fmt(mortaliteDamage() * (1 - p.res/100)) + '/clic'; de.classList.remove('dead-icon'); }
+    }
+    if (dead && !row.classList.contains('dead')) row.classList.add('dead');
+  }
+}
+
+function updateStatsView() {
+  const cDPS = contagionDamage();
+  const pens = [];
+  for (const c of CONTINENTS) if (state.shortages[c.id]) pens.push({ c, dps: penurieDPS(c) });
+  const totalDPS = cDPS + pens.reduce((s,p) => s + p.dps, 0);
+  const set = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = v; };
+  set('stat-total-dps', fmt(totalDPS) + ' /s');
+  set('stat-contagion-dps', fmt(cDPS) + ' /s');
+  for (const p of pens) set('stat-pen-' + p.c.id + '-dps', fmt(p.dps) + ' /s');
+  set('stat-base-dmg', fmt(mortaliteDamage()));
+  for (const c of CONTINENTS) {
+    const cm = countMorts(c), cp = countPop(c);
+    set('stats-c-pct-' + c.id, fmtPct(cm/cp*100));
+    set('stats-c-cnt-' + c.id, fmt(cm) + ' / ' + fmt(cp));
+  }
+}
+
+// ============================================================
+// RENDER PRINCIPAL
+// ============================================================
+function renderMain() {
+  updateGemDisplay();
+  if (state.won) return renderVictory();
+  if (state.view === 'stats') return renderStats();
+  if (state.view === 'capitales') { window.Capitals.render(); return; }
+  if (state.view === 'missions') return renderMissions();
+  if (state.view === 'world') return renderWorld();
+  const c = CONTINENTS.find(x => x.id === state.view);
+  if (c) return renderContinent(c);
+  state.view = 'world'; renderWorld();
+}
+
+function renderVictory() {
+  document.getElementById('main').innerHTML = `
+    <div class="victory">
+      <h1>8,131 MILLIARDS</h1>
+      <div class="stat-big">${fmt(totalMorts())} morts</div>
+      <div class="sub">Toute l'humanité a péri.<br>Ton faux remède t'a rapporté une fortune.<br><span style="color:var(--gold);font-weight:700;margin-top:14px;display:inline-block;">Félicitations, Dr. Machiavélique.</span></div>
+      <button data-action="restart">↻ Rejouer</button>
+    </div>`;
+}
+
+function renderMissions() {
+  let html = '<div class="section-title">Missions du jour <span class="tag">Renouvelées à chaque partie</span></div>';
+  html += '<div class="missions-grid" id="missions-container"></div>';
+  document.getElementById('main').innerHTML = html;
+  updateMissionUI();
+}
+
+function renderWorld() {
+  let html = '<div class="section-title">Continents <span class="tag">Clique pour ouvrir</span></div><div class="continents-grid">';
+  for (const c of CONTINENTS) {
+    const cm = countMorts(c), cp = countPop(c), pct = (cm/cp)*100;
+    const dead = cm >= cp - 0.01;
+    const badge = state.shortages[c.id] ? `<div class="cont-badge">${c.penurie.emoji}</div>` : '';
+    html += `<div class="continent-card ${dead?'dead':''}" data-action="open" data-cid="${c.id}">${badge}
+      <div class="cont-name">${c.emoji} ${c.nom}</div><div class="cont-pct" id="c-pct-${c.id}">${fmtPct(pct)}</div>
+      <div class="cont-count" id="c-cnt-${c.id}">${fmt(cm)} / ${fmt(cp)}</div>
+      <div class="cont-bar"><div class="cont-bar-fill" id="c-bar-${c.id}" style="width:${pct}%"></div></div></div>`;
+  }
+  html += '</div>';
+
+  html += '<div class="section-title">Améliorations <span class="tag">100 niveaux max</span></div><div class="upgrades">';
+  html += upgradeHTML('mortalite', '🧬', 'Mortalité') + upgradeHTML('contagion', '🦠', 'Contagion') + upgradeHTML('energie', '⚡', 'Énergie');
+  html += '</div><div class="section-title">Attaques de masse <span class="tag">1 clic auto / 2 s · en gemmes 💎</span></div><div class="shortage-grid">';
+  for (const c of CONTINENTS) {
+    const bought = !!state.shortages[c.id];
+    html += `<button class="shortage-card ${bought?'active':''}" id="short-${c.id}" data-action="buy-shortage" data-cid="${c.id}" ${bought||state.gems<c.penurie.gems?'disabled':''}>
+      <div class="sc-icon">${c.penurie.emoji}</div><div class="sc-body"><div class="sc-name">${c.penurie.nom}</div><div class="sc-cont">${c.emoji} ${c.nom}</div><div class="sc-desc">1 clic auto / 2 s sur ce continent</div></div>
+      <div class="sc-cost">${bought?'✓ ACTIVE':c.penurie.gems+' 💎'}</div></button>`;
+  }
+  html += '</div>';
+  document.getElementById('main').innerHTML = html;
+  updateWorldView(); updateUpgradeBtns();
+}
+
+function upgradeHTML(id, icon, name) {
+  let maxed, lvl, desc, cost;
+  if (id === 'mortalite') {
+    maxed = state.mortaliteLevel >= MAX_LEVEL;
+    lvl = state.mortaliteLevel;
+    desc = upgradeDesc('mortalite');
+    cost = maxed ? 0 : mortaliteCost();
+  } else if (id === 'contagion') {
+    maxed = state.contagionLevel >= MAX_LEVEL;
+    lvl = state.contagionLevel;
+    desc = upgradeDesc('contagion');
+    cost = maxed ? 0 : contagionCost();
+  } else {
+    maxed = state.energieLevel >= MAX_LEVEL;
+    lvl = state.energieLevel;
+    desc = upgradeDesc('energie');
+    cost = maxed ? 0 : energieCost();
+  }
+  const dis = maxed || state.money < cost;
+  return `<button class="upgrade-btn" id="up-${id}" data-action="buy" data-type="${id}" ${dis?'disabled':''}>
+    <div class="up-icon">${icon}</div><div class="up-info"><div class="up-name">${name} <span class="lvl">${maxed ? '(MAX)' : 'niv. ' + lvl + ' / 100'}</span></div><div class="up-desc">${desc}</div></div>
+    <div class="up-cost">${maxed ? '—' : fmtEuro(cost)}</div></button>`;
+}
+
+function renderContinent(c) {
+  const cm = countMorts(c), cp = countPop(c);
+  let html = `<button class="back-btn" data-action="back">← Retour</button>
+    <div class="cont-header"><div class="cont-header-name">${c.emoji} ${c.nom}</div>
+      <div class="cont-header-pct" id="detail-pct">${fmtPct(cm/cp*100)}</div>
+      <div class="cont-header-count" id="detail-cnt">${fmt(cm)} morts sur ${fmt(cp)}</div></div><div class="country-list">`;
+  for (let i = 0; i < c.pays.length; i++) {
+    const p = c.pays[i]; const dead = p.morts >= p.pop - 0.01;
+    html += `<div class="country-row ${dead?'dead':''}" id="row-${c.id}-${i}" data-action="hit" data-cid="${c.id}" data-idx="${i}">
+      <div class="cr-info"><div class="cr-name">${p.nom}</div><div class="cr-sub">${fmt(p.pop)} hab · rés. ${p.res}</div></div>
+      <div class="cr-pct">${fmtPct((p.morts / p.pop) * 100)}</div>
+      <div class="cr-dmg ${dead?'dead-icon':''}">${dead?'☠️':'+'+fmt(mortaliteDamage()*(1-p.res/100))+'/clic'}</div></div>`;
+  }
+  html += '</div>';
+  document.getElementById('main').innerHTML = html; updateContinentView();
+}
+
+function renderStats() {
+  const cDPS = contagionDamage(); const activePens = [];
+  for (const c of CONTINENTS) if (state.shortages[c.id]) activePens.push({ c, dps: penurieDPS(c) });
+  const totalDPS = cDPS + activePens.reduce((s,p) => s + p.dps, 0);
+  const all = []; for (const c of CONTINENTS) for (let i = 0; i < c.pays.length; i++) all.push({ c, i, p: c.pays[i] });
+  const topResist = all.slice().sort((a,b) => b.p.res - a.p.res).slice(0, 12);
+
+  let html = `<div class="stats-block"><div class="stats-block-title">Dégâts par seconde</div><div class="stats-big" id="stat-total-dps">${fmt(totalDPS)} /s</div><div class="stats-big-label">Total monde</div>
+    <div class="stats-row"><span class="label">🦠 Contagion (niv. ${state.contagionLevel}/100)</span><span class="value gold" id="stat-contagion-dps">${fmt(cDPS)} /s</span></div>`;
+  for (const c of CONTINENTS) if (state.shortages[c.id]) html += `<div class="stats-row"><span class="label">${c.penurie.emoji} ${c.penurie.nom}</span><span class="value gold" id="stat-pen-${c.id}-dps">— /s</span></div>`;
+  if (!activePens.length) html += `<div class="stats-empty">Aucune attaque de masse active.</div>`;
+  html += `</div><div class="stats-block"><div class="stats-block-title">Dégâts par clic</div><div class="stats-formula"><div>base (niv. ${state.mortaliteLevel}/100) = <strong id="stat-base-dmg">${fmt(mortaliteDamage())}</strong> morts</div><div>dégâts = base × (1 − résistance / 100)</div><div style="color:var(--faint);margin-top:6px;font-size:11px;">1 clic consomme 10 ⚡ · max possible : 100 000 000</div></div>
+    <div style="font-size:11px;color:var(--dim);margin:10px 0 8px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;">Top 12 pays les plus résistants</div><div class="res-table">`;
+  for (const {c, i, p} of topResist) {
+    html += `<div class="res-row"><span class="res-name">${p.nom} <span style="color:var(--faint);font-weight:400;">· ${c.nom}</span></span><span class="res-val">${p.res}%</span><span class="res-dmg" id="res-dmg-${c.id}-${i}">${fmt(mortaliteDamage() * (1 - p.res/100))}</span></div>`;
+  }
+  html += `</div></div><div class="stats-block"><div class="stats-block-title">État des continents</div>`;
+  for (const c of CONTINENTS) {
+    const cm = countMorts(c), cp = countPop(c);
+    html += `<div class="stats-row"><span class="label">${c.emoji} ${c.nom}</span><span class="value blood" id="stats-c-pct-${c.id}">${fmtPct(cm/cp*100)}</span></div><div class="stats-row" style="border-bottom:none;padding-top:0;"><span class="label" style="font-size:11px;color:var(--faint);">Morts</span><span class="value dim" style="font-size:11px;" id="stats-c-cnt-${c.id}">${fmt(cm)} / ${fmt(cp)}</span></div>`;
+  }
+  html += `</div>`;
+
+  html += `<div class="stats-block"><div class="stats-block-title">Badges & Succès</div><div class="badges-grid">`;
+  for (const b of state.badges) {
+    html += `<div class="badge-card ${b.unlocked ? 'unlocked' : ''}">
+      <div class="badge-icon">${b.emoji}</div>
+      <div class="badge-name">${b.name}</div>
+      <div class="badge-desc">${b.desc}</div>
+      <div class="badge-reward">+${b.reward} 💎</div>
+    </div>`;
+  }
+  html += `</div></div>`;
+
+  html += `<div class="stats-block danger-zone">
+    <div class="stats-block-title">Zone dangereuse</div>
+    <p class="danger-text">Efface définitivement la progression sauvegardée et repart à zéro avec les ressources de base (300 €, 0 💎, tous les niveaux à 0).</p>
+    <button class="danger-btn" data-action="reset-profile">🗑️ Réinitialiser le profil</button>
+  </div>`;
+
+  document.getElementById('main').innerHTML = html; updateStatsView();
+}
+
+// ============================================================
+// ÉVÉNEMENTS DU JEU
+// ============================================================
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-action]');
+  if (!el || el.disabled) return;
+  const action = el.dataset.action;
+
+  if (['tab', 'open', 'back', 'hit', 'buy', 'buy-shortage', 'restart', 'reset-profile'].includes(action)) {
+    if (action === 'tab') {
+      state.view = el.dataset.tab;
+      document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === state.view));
+      renderMain();
+    } else if (action === 'open') {
+      state.view = el.dataset.cid;
+      document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === 'world'));
+      renderMain();
+    } else if (action === 'back') {
+      state.view = 'world'; renderMain();
+    } else if (action === 'hit') {
+      if (el.classList.contains('dead')) return;
+      const c = CONTINENTS.find(x => x.id === el.dataset.cid);
+      const p = c.pays[parseInt(el.dataset.idx)];
+      clickCountry(p, el);
+    } else if (action === 'buy') {
+      const t = el.dataset.type;
+      if (t === 'mortalite') buyMortalite();
+      else if (t === 'contagion') buyContagion();
+      else if (t === 'energie') buyEnergie();
+    } else if (action === 'buy-shortage') {
+      buyShortage(CONTINENTS.find(x => x.id === el.dataset.cid));
+    } else if (action === 'restart') {
+      restart();
+    } else if (action === 'reset-profile') {
+      if (confirm('⚠️ Effacer toute la progression et repartir de zéro ?\n\nCette action est irréversible.')) {
+        restart();
+        showToast('🔄 Profil réinitialisé — bonne nouvelle partie !');
+      }
+    }
+  }
+});
+
+function restart() {
+  clearSave();
+  for (const c of CONTINENTS) { delete c._timer; for (const p of c.pays) p.morts = 0; }
+  state.money = 300; state.gems = 0; state.energy = 100;
+  state.mortaliteLevel = 0; state.contagionLevel = 0; state.energieLevel = 0;
+  state.view = 'world'; state.shortages = {}; state.milestone = 0; state.won = false;
+  state.clickCount = 0; state.quizTotalCorrect = 0; state.quizBestStreak = 0;
+  state.badges.forEach(b => b.unlocked = false);
+  generateMissions();
+  if (window.Capitals) window.Capitals.reset();
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === 'world'));
+  renderMain();
+}
+
+// ============================================================
+// MODE CAPITALES
+// ============================================================
+const Capitals = (() => {
+  // ─── Pays additionnels uniquement pour le quiz (ne touchent pas au jeu) ───
+  const QUIZ_EXTRA = [
+    // Afrique
+    { country:'Afrique du Sud', capital:'Pretoria',       continentId:'afrique', continentName:'Afrique', emoji:'🌍' },
+    { country:'Angola',         capital:'Luanda',         continentId:'afrique', continentName:'Afrique', emoji:'🌍' },
+    { country:'Bénin',          capital:'Porto-Novo',     continentId:'afrique', continentName:'Afrique', emoji:'🌍' },
+    { country:'Botswana',       capital:'Gaborone',       continentId:'afrique', continentName:'Afrique', emoji:'🌍' },
+    { country:'Burkina Faso',   capital:'Ouagadougou',    continentId:'afrique', continentName:'Afrique', emoji:'🌍' },
+    { country:'Cameroun',       capital:'Yaoundé',        continentId:'afrique', continentName:'Afrique', emoji:'🌍' },
+    { country:"Côte d'Ivoire",  capital:'Yamoussoukro',   continentId:'afrique', continentName:'Afrique', emoji:'🌍' },
+    { country:'Ghana',          capital:'Accra',          continentId:'afrique', continentName:'Afrique', emoji:'🌍' },
+    { country:'Libye',          capital:'Tripoli',        continentId:'afrique', continentName:'Afrique', emoji:'🌍' },
+    { country:'Madagascar',     capital:'Antananarivo',   continentId:'afrique', continentName:'Afrique', emoji:'🌍' },
+    { country:'Mali',           capital:'Bamako',         continentId:'afrique', continentName:'Afrique', emoji:'🌍' },
+    { country:'Mozambique',     capital:'Maputo',         continentId:'afrique', continentName:'Afrique', emoji:'🌍' },
+    { country:'Niger',          capital:'Niamey',         continentId:'afrique', continentName:'Afrique', emoji:'🌍' },
+    { country:'Ouganda',        capital:'Kampala',        continentId:'afrique', continentName:'Afrique', emoji:'🌍' },
+    { country:'Sénégal',        capital:'Dakar',          continentId:'afrique', continentName:'Afrique', emoji:'🌍' },
+    { country:'Tunisie',        capital:'Tunis',          continentId:'afrique', continentName:'Afrique', emoji:'🌍' },
+    { country:'Zambie',         capital:'Lusaka',         continentId:'afrique', continentName:'Afrique', emoji:'🌍' },
+    { country:'Zimbabwe',       capital:'Harare',         continentId:'afrique', continentName:'Afrique', emoji:'🌍' },
+
+    // Amérique
+    { country:'Bolivie',        capital:'La Paz',         continentId:'amerique', continentName:'Amérique', emoji:'🌎' },
+    { country:'Costa Rica',     capital:'San José',       continentId:'amerique', continentName:'Amérique', emoji:'🌎' },
+    { country:'Équateur',       capital:'Quito',          continentId:'amerique', continentName:'Amérique', emoji:'🌎' },
+    { country:'Guatemala',      capital:'Guatemala',      continentId:'amerique', continentName:'Amérique', emoji:'🌎' },
+    { country:'Haïti',          capital:'Port-au-Prince', continentId:'amerique', continentName:'Amérique', emoji:'🌎' },
+    { country:'Honduras',       capital:'Tegucigalpa',    continentId:'amerique', continentName:'Amérique', emoji:'🌎' },
+    { country:'Jamaïque',       capital:'Kingston',       continentId:'amerique', continentName:'Amérique', emoji:'🌎' },
+    { country:'Nicaragua',      capital:'Managua',        continentId:'amerique', continentName:'Amérique', emoji:'🌎' },
+    { country:'Panama',         capital:'Panama',         continentId:'amerique', continentName:'Amérique', emoji:'🌎' },
+    { country:'Paraguay',       capital:'Asunción',       continentId:'amerique', continentName:'Amérique', emoji:'🌎' },
+    { country:'Rép. dominicaine',capital:'Saint-Domingue', continentId:'amerique', continentName:'Amérique', emoji:'🌎' },
+    { country:'Uruguay',        capital:'Montevideo',     continentId:'amerique', continentName:'Amérique', emoji:'🌎' },
+
+    // Asie
+    { country:'Afghanistan',    capital:'Kaboul',         continentId:'asie', continentName:'Asie', emoji:'🌏' },
+    { country:'Arabie saoudite',capital:'Riyad',          continentId:'asie', continentName:'Asie', emoji:'🌏' },
+    { country:'Arménie',        capital:'Erevan',         continentId:'asie', continentName:'Asie', emoji:'🌏' },
+    { country:'Azerbaïdjan',    capital:'Bakou',          continentId:'asie', continentName:'Asie', emoji:'🌏' },
+    { country:'Birmanie',       capital:'Naypyidaw',      continentId:'asie', continentName:'Asie', emoji:'🌏' },
+    { country:'Cambodge',       capital:'Phnom Penh',     continentId:'asie', continentName:'Asie', emoji:'🌏' },
+    { country:'Émirats arabes', capital:'Abou Dabi',      continentId:'asie', continentName:'Asie', emoji:'🌏' },
+    { country:'Géorgie',        capital:'Tbilissi',       continentId:'asie', continentName:'Asie', emoji:'🌏' },
+    { country:'Irak',           capital:'Bagdad',         continentId:'asie', continentName:'Asie', emoji:'🌏' },
+    { country:'Iran',           capital:'Téhéran',        continentId:'asie', continentName:'Asie', emoji:'🌏' },
+    { country:'Israël',         capital:'Jérusalem',      continentId:'asie', continentName:'Asie', emoji:'🌏' },
+    { country:'Jordanie',       capital:'Amman',          continentId:'asie', continentName:'Asie', emoji:'🌏' },
+    { country:'Kazakhstan',     capital:'Astana',         continentId:'asie', continentName:'Asie', emoji:'🌏' },
+    { country:'Koweït',         capital:'Koweït',         continentId:'asie', continentName:'Asie', emoji:'🌏' },
+    { country:'Kirghizistan',   capital:'Bichkek',        continentId:'asie', continentName:'Asie', emoji:'🌏' },
+    { country:'Laos',           capital:'Vientiane',      continentId:'asie', continentName:'Asie', emoji:'🌏' },
+    { country:'Liban',          capital:'Beyrouth',       continentId:'asie', continentName:'Asie', emoji:'🌏' },
+    { country:'Malaisie',       capital:'Kuala Lumpur',   continentId:'asie', continentName:'Asie', emoji:'🌏' },
+    { country:'Mongolie',       capital:'Oulan-Bator',    continentId:'asie', continentName:'Asie', emoji:'🌏' },
+    { country:'Népal',          capital:'Katmandou',      continentId:'asie', continentName:'Asie', emoji:'🌏' },
+    { country:'Oman',           capital:'Mascate',        continentId:'asie', continentName:'Asie', emoji:'🌏' },
+    { country:'Ouzbékistan',    capital:'Tachkent',       continentId:'asie', continentName:'Asie', emoji:'🌏' },
+    { country:'Qatar',          capital:'Doha',           continentId:'asie', continentName:'Asie', emoji:'🌏' },
+    { country:'Singapour',      capital:'Singapour',      continentId:'asie', continentName:'Asie', emoji:'🌏' },
+    { country:'Sri Lanka',      capital:'Colombo',        continentId:'asie', continentName:'Asie', emoji:'🌏' },
+    { country:'Syrie',          capital:'Damas',          continentId:'asie', continentName:'Asie', emoji:'🌏' },
+    { country:'Tadjikistan',    capital:'Douchanbé',      continentId:'asie', continentName:'Asie', emoji:'🌏' },
+    { country:'Turkménistan',   capital:'Achgabat',       continentId:'asie', continentName:'Asie', emoji:'🌏' },
+    { country:'Turquie',        capital:'Ankara',         continentId:'asie', continentName:'Asie', emoji:'🌏' },
+    { country:'Yémen',          capital:'Sanaa',          continentId:'asie', continentName:'Asie', emoji:'🌏' },
+
+    // Europe
+    { country:'Albanie',        capital:'Tirana',         continentId:'europe', continentName:'Europe', emoji:'🇪🇺' },
+    { country:'Autriche',       capital:'Vienne',         continentId:'europe', continentName:'Europe', emoji:'🇪🇺' },
+    { country:'Belgique',       capital:'Bruxelles',      continentId:'europe', continentName:'Europe', emoji:'🇪🇺' },
+    { country:'Biélorussie',    capital:'Minsk',          continentId:'europe', continentName:'Europe', emoji:'🇪🇺' },
+    { country:'Bosnie-Herz.',   capital:'Sarajevo',       continentId:'europe', continentName:'Europe', emoji:'🇪🇺' },
+    { country:'Bulgarie',       capital:'Sofia',          continentId:'europe', continentName:'Europe', emoji:'🇪🇺' },
+    { country:'Croatie',        capital:'Zagreb',         continentId:'europe', continentName:'Europe', emoji:'🇪🇺' },
+    { country:'Danemark',       capital:'Copenhague',     continentId:'europe', continentName:'Europe', emoji:'🇪🇺' },
+    { country:'Estonie',        capital:'Tallinn',        continentId:'europe', continentName:'Europe', emoji:'🇪🇺' },
+    { country:'Finlande',       capital:'Helsinki',       continentId:'europe', continentName:'Europe', emoji:'🇪🇺' },
+    { country:'Grèce',          capital:'Athènes',        continentId:'europe', continentName:'Europe', emoji:'🇪🇺' },
+    { country:'Hongrie',        capital:'Budapest',       continentId:'europe', continentName:'Europe', emoji:'🇪🇺' },
+    { country:'Irlande',        capital:'Dublin',         continentId:'europe', continentName:'Europe', emoji:'🇪🇺' },
+    { country:'Lettonie',       capital:'Riga',           continentId:'europe', continentName:'Europe', emoji:'🇪🇺' },
+    { country:'Lituanie',       capital:'Vilnius',        continentId:'europe', continentName:'Europe', emoji:'🇪🇺' },
+    { country:'Luxembourg',     capital:'Luxembourg',     continentId:'europe', continentName:'Europe', emoji:'🇪🇺' },
+    { country:'Macédoine du N.',capital:'Skopje',         continentId:'europe', continentName:'Europe', emoji:'🇪🇺' },
+    { country:'Moldavie',       capital:'Chișinău',       continentId:'europe', continentName:'Europe', emoji:'🇪🇺' },
+    { country:'Monténégro',     capital:'Podgorica',      continentId:'europe', continentName:'Europe', emoji:'🇪🇺' },
+    { country:'Pays-Bas',       capital:'Amsterdam',      continentId:'europe', continentName:'Europe', emoji:'🇪🇺' },
+    { country:'Portugal',       capital:'Lisbonne',       continentId:'europe', continentName:'Europe', emoji:'🇪🇺' },
+    { country:'Rép. tchèque',   capital:'Prague',         continentId:'europe', continentName:'Europe', emoji:'🇪🇺' },
+    { country:'Roumanie',       capital:'Bucarest',       continentId:'europe', continentName:'Europe', emoji:'🇪🇺' },
+    { country:'Serbie',         capital:'Belgrade',       continentId:'europe', continentName:'Europe', emoji:'🇪🇺' },
+    { country:'Slovaquie',      capital:'Bratislava',     continentId:'europe', continentName:'Europe', emoji:'🇪🇺' },
+    { country:'Slovénie',       capital:'Ljubljana',      continentId:'europe', continentName:'Europe', emoji:'🇪🇺' },
+    { country:'Suisse',         capital:'Berne',          continentId:'europe', continentName:'Europe', emoji:'🇪🇺' },
+    { country:'Ukraine',        capital:'Kyiv',           continentId:'europe', continentName:'Europe', emoji:'🇪🇺' },
+
+    // Océanie
+    { country:'Palaos',         capital:'Ngerulmud',      continentId:'oceanie', continentName:'Océanie', emoji:'🌊' },
+    { country:'Marshall',       capital:'Majuro',         continentId:'oceanie', continentName:'Océanie', emoji:'🌊' },
+    { country:'Nauru',          capital:'Yaren',          continentId:'oceanie', continentName:'Océanie', emoji:'🌊' },
+    { country:'Tuvalu',         capital:'Funafuti',       continentId:'oceanie', continentName:'Océanie', emoji:'🌊' }
+  ];
+
+  const ALL_COUNTRIES = [];
+  // 1) Les 50 pays du jeu
+  for (const c of CONTINENTS) for (const p of c.pays) {
+    if (p.capitale) ALL_COUNTRIES.push({ country: p.nom, capital: p.capitale, continentId: c.id, continentName: c.nom, emoji: c.emoji });
+  }
+  // 2) Les ~100 pays additionnels (quiz uniquement)
+  for (const q of QUIZ_EXTRA) {
+    if (!ALL_COUNTRIES.find(x => x.capital === q.capital)) ALL_COUNTRIES.push(q);
+  }
+
+  const MAX_LIVES = 3;
+  const qs = { current: null, streak: 0, bestStreak: 0, milestonesHit: new Set(), totalCorrect: 0, totalWrong: 0, lives: MAX_LIVES, locked: false, gameOver: false, sessionReward: { gems: 0 } };
+  function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+
+  function newQuestion() {
+    if (ALL_COUNTRIES.length === 0) return;
+    const answer = ALL_COUNTRIES[Math.floor(Math.random() * ALL_COUNTRIES.length)];
+    const sameCont = ALL_COUNTRIES.filter(x => x.continentId === answer.continentId && x.capital !== answer.capital);
+    const others = ALL_COUNTRIES.filter(x => x.continentId !== answer.continentId && x.capital !== answer.capital);
+    const distractors = [];
+    shuffle(sameCont);
+    for (const s of sameCont) { if (distractors.length >= 2) break; if (!distractors.find(d => d.capital === s.capital)) distractors.push(s); }
+    shuffle(others);
+    for (const o of others) { if (distractors.length >= 3) break; if (!distractors.find(d => d.capital === o.capital)) distractors.push(o); }
+    while (distractors.length < 3) { const d = ALL_COUNTRIES[Math.floor(Math.random() * ALL_COUNTRIES.length)]; if (d.capital !== answer.capital && !distractors.find(x => x.capital === d.capital)) distractors.push(d); }
+    const options = shuffle([answer.capital, ...distractors.slice(0, 3).map(d => d.capital)]);
+    qs.current = { answer, options, answered: false, chosen: null };
+    qs.locked = false;
+  }
+
+  function checkMilestones() {
+    for (let i = 0; i < QUIZ_MILESTONES.length; i++) {
+      const m = QUIZ_MILESTONES[i];
+       if (qs.streak >= m.streak && !qs.milestonesHit.has(i)) {
+        qs.milestonesHit.add(i);
+        state.gems += m.gems; updateGemDisplay();
+        qs.sessionReward.gems += m.gems;
+        showToast(`🔥 Série de ${m.streak} — +${m.gems} 💎`);
+        const badge = document.getElementById('qm-' + i); if (badge) badge.classList.add('hit');
+      }
+    }
+  }
+
+  function answer(chosen) {
+    if (!qs.current || qs.current.answered || qs.locked || qs.gameOver) return;
+    qs.locked = true; qs.current.answered = true; qs.current.chosen = chosen;
+    const correct = chosen === qs.current.answer.capital;
+
+    if (correct) {
+        qs.streak++; qs.totalCorrect++; state.quizTotalCorrect++;
+      if (qs.streak > qs.bestStreak) qs.bestStreak = qs.streak;
+      if (qs.totalCorrect > state.quizBestStreak) state.quizBestStreak = qs.totalCorrect;
+      saveGame();
+      checkMilestones();
+      trackMission('quiz', 1);
+      checkBadges();
+    }
+    else { qs.streak = 0; qs.totalWrong++; qs.lives--; }
+
+    document.querySelectorAll('.cap-option').forEach(btn => {
+      btn.disabled = true; const cap = btn.dataset.cap;
+      if (cap === qs.current.answer.capital) btn.classList.add('correct');
+      else if (cap === chosen) btn.classList.add('wrong');
+    });
+
+    updateStatsBar();
+
+    if (qs.lives <= 0) {
+      setTimeout(() => {
+        qs.gameOver = true;
+        render();
+        saveGame();
+      }, 900);
+      return;
+    }
+
+    setTimeout(() => {
+      if (state.view !== 'capitales' || qs.gameOver) return;
+      newQuestion();
+      renderQuestion();
+    }, correct ? 550 : 1050);
+  }
+
+  function updateStatsBar() {
+    const set = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = v; };
+    set('q-best', state.quizBestStreak || 0);
+    const lives = document.getElementById('q-lives');
+    if (lives) { lives.innerHTML = ''; for (let i = 0; i < MAX_LIVES; i++) { const h = document.createElement('span'); h.className = 'heart ' + (i < qs.lives ? 'full' : 'empty'); h.textContent = '❤️'; lives.appendChild(h); } }
+  }
+
+  function render() {
+    const main = document.getElementById('main'); if (!main) return;
+    if (qs.gameOver) { renderGameOver(main); return; }
+    if (!qs.current) newQuestion();
+
+    let html = `<div class="quiz-wrap"><div class="quiz-stats">
+      <div class="qs-card"><div class="qs-label">Série</div><div class="qs-value streak" id="q-streak">${qs.streak}</div></div>
+      <div class="qs-card"><div class="qs-label">Record</div><div class="qs-value best" id="q-best">${state.quizBestStreak || 0}</div></div>
+      <div class="qs-card"><div class="qs-label">Bonnes</div><div class="qs-value" id="q-correct">${qs.totalCorrect}</div></div>
+      <div class="qs-card"><div class="qs-label">Vies</div><div class="qs-value lives" id="q-lives"></div></div>
+    </div><div class="quiz-milestones">`;
+
+    QUIZ_MILESTONES.forEach((m, i) => {
+      const hit = qs.milestonesHit.has(i);
+      html += `<div class="qm-badge ${hit?'hit':''}" id="qm-${i}"><span class="qm-streak">${m.streak}</span><span class="qm-reward">+${m.gems}💎</span></div>`;
+    });
+
+    html += `</div><div id="quiz-card-container"></div></div>`;
+    main.innerHTML = html; renderQuestion(); updateStatsBar();
+  }
+
+  function renderQuestion() {
+    const container = document.getElementById('quiz-card-container'); if (!container || !qs.current) return;
+    const q = qs.current;
+    let html = `<div class="quiz-card"><div class="quiz-q-label">${q.answer.emoji} ${q.answer.continentName}</div><div class="quiz-q-country">${q.answer.country}</div><div class="quiz-q-cont">Quelle est la capitale de ce pays ?</div><div class="quiz-options">`;
+    for (const cap of q.options) html += `<button class="cap-option" data-action="cap-answer" data-cap="${cap.replace(/"/g,'&quot;')}" ${q.answered?'disabled':''}>${cap}</button>`;
+    html += `</div></div>`;
+    container.innerHTML = html;
+
+    if (q.answered) {
+      container.querySelectorAll('.cap-option').forEach(btn => { btn.disabled = true; if (btn.dataset.cap === q.answer.capital) btn.classList.add('correct'); else if (btn.dataset.cap === q.chosen) btn.classList.add('wrong'); });
+    }
+  }
+
+  function renderGameOver(main) {
+    const hitCount = qs.milestonesHit.size; let rewardRows = '';
+    if (hitCount === 0) rewardRows = `<div class="go-empty">Aucun palier atteint cette fois.<br>Il faut 5 bonnes réponses consécutives pour la première récompense.</div>`;
+    else {
+      QUIZ_MILESTONES.forEach((m, i) => { if (qs.milestonesHit.has(i)) rewardRows += `<div class="go-reward-row"><span class="label">Série de ${m.streak}</span><span class="value">+${m.gems} 💎</span></div>`; });
+      rewardRows += `<div class="go-reward-total"><span>Total obtenu</span><span>+${qs.sessionReward.gems} 💎</span></div>`;
+    }
+    main.innerHTML = `<div class="game-over"><div class="go-icon">💀</div><div class="go-title">Partie terminée</div><div class="go-sub">Tes trois vies sont épuisées.</div>
+<span class="go-stat-value">${state.quizBestStreak || 0}</span>      <div class="go-rewards"><div class="go-rewards-title">Récompenses obtenues</div>${rewardRows}</div>
+      <div class="go-actions"><button class="go-btn primary" data-action="cap-restart">↻ Rejouer</button><button class="go-btn" data-action="cap-home">← Accueil</button></div></div>`;
+  }
+
+  function reset() {
+    qs.current = null; qs.streak = 0; qs.bestStreak = 0; qs.milestonesHit.clear();
+    qs.totalCorrect = 0; qs.totalWrong = 0; qs.lives = MAX_LIVES;
+    qs.locked = false; qs.gameOver = false; qs.sessionReward = { gems: 0 };
+  }
+
+  return {
+    render, answer, reset,
+    restart: () => { reset(); render(); saveGame(); },
+    goHome: () => { reset(); state.view = 'world'; document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === 'world')); renderMain(); saveGame(); }
+  };
+})();
+
+window.Capitals = Capitals;
+
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-action]');
+  if (!el || el.disabled) return;
+  const a = el.dataset.action;
+  if (!a.startsWith('cap-')) return;
+  if (a === 'cap-answer') Capitals.answer(el.dataset.cap);
+  else if (a === 'cap-restart') Capitals.restart();
+  else if (a === 'cap-home') Capitals.goHome();
+});
+
+// ============================================================
+// SYSTÈME DE SAUVEGARDE
+// ============================================================
+function saveGame() {
+  const saveData = {
+    version: SAVE_VERSION,
+    won: state.won,
+    money: state.money, gems: state.gems, energy: state.energy,
+    mortaliteLevel: state.mortaliteLevel, contagionLevel: state.contagionLevel,
+    energieLevel: state.energieLevel, milestone: state.milestone,
+        shortages: state.shortages, missions: state.missions,
+    missionsDate: state.missionsDate,
+    clickCount: state.clickCount, quizTotalCorrect: state.quizTotalCorrect,
+    quizBestStreak: state.quizBestStreak || 0,
+    unlockedBadges: state.badges.filter(b => b.unlocked).map(b => b.id),
+    countries: CONTINENTS.map(c => c.pays.map(p => p.morts))
+  };
+  localStorage.setItem('savantFouSave', JSON.stringify(saveData));
+}
+
+function loadGame() {
+  const saved = localStorage.getItem('savantFouSave');
+  if (!saved) return;
+  try {
+    const data = JSON.parse(saved);
+    if (data.version !== SAVE_VERSION) {
+      // Ancienne sauvegarde (8/20/21 niveaux) incompatible → on repart à zéro
+      clearSave();
+      return;
+    }
+       Object.assign(state, {
+      won: data.won || false,
+      money: data.money, gems: data.gems, energy: data.energy,
+      mortaliteLevel: data.mortaliteLevel, contagionLevel: data.contagionLevel,
+      energieLevel: data.energieLevel, milestone: data.milestone,
+           shortages: data.shortages, missions: data.missions,
+      missionsDate: data.missionsDate || null,
+      clickCount: data.clickCount, quizTotalCorrect: data.quizTotalCorrect,
+      quizBestStreak: data.quizBestStreak || 0
+    });
+
+    if (data.countries) {
+      for (let c = 0; c < CONTINENTS.length; c++) {
+        for (let p = 0; p < CONTINENTS[c].pays.length; p++) {
+          CONTINENTS[c].pays[p].morts = data.countries[c][p];
+        }
+      }
+    }
+
+    if (data.unlockedBadges) {
+      state.badges.forEach(b => {
+        if (data.unlockedBadges.includes(b.id)) b.unlocked = true;
+      });
+    }
+  } catch (e) {
+    console.error("Erreur lors du chargement de la sauvegarde", e);
+  }
+}
+
+function clearSave() {
+  localStorage.removeItem('savantFouSave');
+}
+
+// Filet de sécurité : save toutes les 2s (au lieu de 5)
+setInterval(() => {
+  // Ne sauvegarde que si le jeu est visible (évite les conflits multi-onglets)
+  if (document.visibilityState === 'visible') saveGame();
+}, 2000);
+
+// Sauvegarde immédiate quand l'app passe en arrière-plan (mobile : iOS, Android)
+// ET re-synchronisation quand elle revient au premier plan (évite qu'un autre onglet écrase)
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden') {
+    saveGame();
+  } else if (document.visibilityState === 'visible') {
+    // Recharge depuis localStorage : si un autre onglet a joué pendant notre absence,
+    // on récupère SA progression au lieu de l'écraser avec notre état (potentiellement obsolète)
+    loadGame();
+    renderMain();
+  }
+});
+
+// Sauvegarde finale quand l'onglet/app va être fermé
+window.addEventListener('pagehide', saveGame);
+window.addEventListener('beforeunload', saveGame);
+
+// ⬇️ INSÉRER LE BLOC SWIPE ICI ⬇️
+// ============================================================
+// SWIPE POUR CHANGER D'ONGLET
+// ============================================================
+(() => {
+  const TABS = ['world', 'missions', 'capitales', 'stats'];
+  const SWIPE_MIN = 70;
+  const H_DOMINANCE = 1.5;
+
+  const mainEl = document.getElementById('main');
+  if (!mainEl) return;
+
+  let startX = 0, startY = 0, tracking = false;
+
+  mainEl.addEventListener('touchstart', (e) => {
+    if (e.touches.length !== 1) { tracking = false; return; }
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+    tracking = true;
+  }, { passive: true });
+
+  mainEl.addEventListener('touchcancel', () => { tracking = false; }, { passive: true });
+
+  mainEl.addEventListener('touchend', (e) => {
+    if (!tracking) return;
+    tracking = false;
+    if (e.changedTouches.length !== 1) return;
+
+    const dx = e.changedTouches[0].clientX - startX;
+    const dy = e.changedTouches[0].clientY - startY;
+
+    if (Math.abs(dx) < SWIPE_MIN) return;
+    if (Math.abs(dx) < Math.abs(dy) * H_DOMINANCE) return;
+
+    const idx = TABS.indexOf(state.view);
+    if (idx === -1) return;
+
+    let newIdx;
+    if (dx < 0) newIdx = idx + 1;
+    else        newIdx = idx - 1;
+
+    if (newIdx < 0 || newIdx >= TABS.length) return;
+
+    const newTab = TABS[newIdx];
+    state.view = newTab;
+    document.querySelectorAll('.tab').forEach(t =>
+      t.classList.toggle('active', t.dataset.tab === newTab)
+    );
+    renderMain();
+
+    mainEl.classList.remove('main-slide-right', 'main-slide-left');
+    void mainEl.offsetWidth;
+    mainEl.classList.add(dx < 0 ? 'main-slide-right' : 'main-slide-left');
+  }, { passive: true });
+})();
+// ⬆️ FIN DU BLOC SWIPE ⬆️
+
+
+// ============================================================
+// DÉMARRAGE
+// ============================================================
+loadGame();
+const today = new Date().toDateString();
+if (
+  !state.missions ||
+  state.missions.length === 0 ||
+  state.missionsDate !== today
+) {
+  generateMissions();
+}
+renderMain();
+requestAnimationFrame(tick);
+</script>
+</body>
+</html>
